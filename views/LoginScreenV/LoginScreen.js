@@ -12,7 +12,7 @@ const LoginScreen = () => {
     style={styles.container}
   >
     <View style={styles.content}>
-      <Text style={styles.header}>Hazte unos tamales</Text>
+      <Text style={styles.header}>Login</Text>
       
       <TextInput
         style={styles.input}

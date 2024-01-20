@@ -1,10 +1,15 @@
 // app.js
 import React from 'react';
-import LoginScreen from './views/LoginScreenV/LoginScreen';
-import HomeScreen from './views/homeScreen/homeScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './router/AppNavigator';
 
 const App = () => {
-  return <HomeScreen />;
+  return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+  );
 };
+
 
 export default App;

@@ -1,65 +1,61 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import {View, TextInput, ImageBackground, TouchableOpacity, Text } from 'react-native';
 import styles from './homeScreen.styles';
 
 const HomeScreen = () => {
   return (
-    <View style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <Text style={styles.logo}>I</Text>
-        <View style={styles.navBar}>
-          <Text style={styles.navItem}>Features</Text>
-          <Text style={styles.navItem}>About</Text>
-          <Text style={styles.navItem}>Contact Us</Text>
-          <TouchableOpacity style={styles.tryFreeButton}>
-            <Text style={styles.tryFreeText}>Nosotros</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <ImageBackground
+        source={require('../../assets/images/background.jpg')} // Replace with your local image
+        style={styles.backgroundImage}
+      >
+        <View style={styles.header}>
+          <Text style={styles.brand}>UNBOX</Text>
+          <View style={styles.nav}>
+            <Text style={styles.navItem}>Home</Text>
+            <Text style={styles.navItem}>Services</Text>
+            <Text style={styles.navItem}>About</Text>
+            <Text style={styles.navItem}>Contact</Text>
+            <Text style={styles.navItem}>Support</Text>
+            <Text style={styles.navItem}>Sign In / Sign Up</Text>
+          </View>
+        </View>
+        
+        <View style={styles.searchSection}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Enter Destinations"
+            placeholderTextColor="#666"
+          />
+          <TouchableOpacity style={styles.searchButton}>
+            <Text style={styles.searchButtonText}>Search</Text>
           </TouchableOpacity>
         </View>
+      </ImageBackground>
+      
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Press</Text>
+        <Text style={styles.footerText}>Cookies</Text>
+        <Text style={styles.footerText}>Privacy</Text>
+        <Text style={styles.footerText}>Contact Us</Text>
+        <Text style={styles.footerText}>Copyrights</Text>
+      </View>
+
+      <View style={styles.newsletterSection}>
+        <TextInput
+          style={styles.newsletterInput}
+          placeholder="email address"
+          placeholderTextColor="#666"
+        />
+        <TouchableOpacity style={styles.subscribeButton}>
+          <Text style={styles.subscribeButtonText}>Subscribe</Text>
+        </TouchableOpacity>
       </View>
       
-      {/* Main Content Section */}
-      <ScrollView style={styles.mainContent}>
-        {/* Hero Section */}
-        <View style={styles.heroSection}>
-          <Text style={styles.heroTitle}>Easy Way to Manage Your Accounting Software</Text>
-          <Text style={styles.heroSubtitle}>Accounting is built into all small businesses' operations...</Text>
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.getStartedButton}>
-              <Text style={styles.buttonText}>Get Started</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.demoButton}>
-              <Text style={styles.buttonText}>Free Demo</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Feature Cards Section */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featureCardsContainer}>
-          {/* Feature Card Example */}
-          <View style={styles.featureCard}>
-            <Icon name="analytics" size={24} color={styles.iconColor} />
-            <Text style={styles.featureCardTitle}>Analytics</Text>
-            <Text style={styles.featureCardText}>Track and analyze your data...</Text>
-          </View>
-          {/* Add more feature cards */}
-        </ScrollView>
-
-        {/* Brands Section */}
-        <View style={styles.brandsSection}>
-          {/* Brand Logos */}
-          {/* ... */}
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>© 2024 Qualytics. All rights reserved.</Text>
-          {/* Aquí se pueden añadir más elementos al footer si es necesario */}
-        </View>
-      
-      </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
+
 
 export default HomeScreen;

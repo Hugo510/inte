@@ -11,14 +11,23 @@ const adaptiveWidth = (factor) => width * factor;
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Fondo claro de la paleta
+    //backgroundColor: '#000', // Fondo claro de la paleta
+  },
+  backgroundImage: {
+    flex: 1,
+    width: null,
+    height: null,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)', // Ajusta la opacidad aquí
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 22,
-    backgroundColor: '#000000', // Color de fondo para el encabezado
+    padding: 30,
+    backgroundColor: 'transparent', // Color de fondo para el encabezado
     width: width,
   },
   logo: {
@@ -83,10 +92,14 @@ export default StyleSheet.create({
   },
   heroSection: {
     alignItems: 'center',
-    padding: 20,
+    paddingBottom: .5,
+    padding: 15,
+    marginTop: 10,
     backgroundColor: '#DAE8FC', // Color de fondo para la sección principal
-    width: width, // Asegura que el heroSection ocupe el ancho completo
-  },
+    width: '80%',
+    alignSelf: 'center',
+    borderRadius: 50, // Añade esta línea para redondear las esquinas
+},
   heroTitle: {
     fontSize: adaptiveFontSize(24), // Ajusta el tamaño de fuente según el ancho de pantalla
     fontWeight: 'bold',
@@ -172,6 +185,9 @@ export default StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 10, // Add horizontal padding for spacing from the screen edges
     backgroundColor: '#fff',
+    paddingTop: 1,
+    margin: 15,
+    borderRadius: 35,
   },
   titleText: {
     fontWeight: 'bold', // Make the font bold

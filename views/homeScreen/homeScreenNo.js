@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './homeScreenNo.styles';
 
 const HomeScreenNo = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   return (
+    <ImageBackground source={require('../../assets/images/background.jpg')} style={styles.backgroundImage}>
+    <View style={styles.overlay}>
     <View style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
@@ -94,6 +96,7 @@ const HomeScreenNo = ({ navigation }) => {
 
 
 
+
         {/* Feature Cards Section */}
         <ScrollView horizontal showsHorizontalScrollIndicator={true} style={styles.featureCardsContainer}>
           {/* Feature Card Example */}
@@ -127,6 +130,8 @@ const HomeScreenNo = ({ navigation }) => {
       
       </ScrollView>
     </View>
+    </View>
+    </ImageBackground>
   );
 };
 

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Button, Alert } from 'react-native';
 import styles from './RegisterScreen.styles'; 
 import DatePicker from '@react-native-community/datetimepicker'; // Asegúrate de instalar esta librería
-import { RadioButton } from 'react-native-paper'; // Asegúrate de instalar esta librería
+import { RadioButton, Checkbox  } from 'react-native-paper'; // Asegúrate de instalar esta librería
 //import CheckBox from '@react-native-community/checkbox'; // Asegúrate de instalar esta librería
 
 
@@ -79,14 +79,14 @@ const RegisterScreen = ({ navigation }) => {
           </RadioButton.Group>
 
           {/* CheckBox para el teléfono */}
-          {/* <View style={styles.checkboxContainer}>
-            <CheckBox
-              disabled={false}
-              value={checked}
-              onValueChange={(newValue) => setChecked(newValue)}
-            />
+          <View style={styles.checkboxContainer}>
+          <Checkbox
+                            status={checked ? 'checked' : 'unchecked'}
+                            onPress={() => setChecked(!checked)}
+                            color={styles.checkboxColor} // Define tu color en styles
+                        />
             <Text style={styles.checkboxLabel}>I have a phone</Text>
-          </View> */}
+          </View>
 
         {/* Add other input fields here */}
         <View style={styles.buttonGroup}>

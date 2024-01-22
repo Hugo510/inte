@@ -1,5 +1,7 @@
 // styles/SignUpScreenStyles.js
 import { StyleSheet, Dimensions } from 'react-native';
+import { globalStyles } from '../../styles/globalStyles'; // Asegúrate de que la ruta es correcta
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -18,6 +20,7 @@ export default StyleSheet.create({
         paddingVertical: 80,
     },
     title: {
+      ...globalStyles.defaultFont,
       fontSize: 48,
       fontWeight: 'bold',
       color: 'white',
@@ -49,6 +52,7 @@ export default StyleSheet.create({
         marginBottom: 24,
       },
     input: {
+      ...globalStyles.defaultFont,
       backgroundColor: 'transparent',
       borderBottomWidth: 1,
       borderBottomColor: 'grey',

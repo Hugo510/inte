@@ -1,4 +1,4 @@
-// views/SignUpScreen.js
+// views/RegisterScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Button, Alert } from 'react-native';
 import styles from './RegisterScreen.styles'; 

@@ -37,24 +37,29 @@ const RegisterScreen = ({ navigation }) => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      
       {/* Image Section */}
       <ImageBackground
         source={require('../../assets/images/background.jpg')} // Replace with your image path
         style={styles.imageContainer}
       >
-        <Text style={styles.title}>Photography.</Text>
-        <Text style={styles.subtitle}>JOURNEY EVERYWHERE</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.navBack}>&lt;</Text>
+          </TouchableOpacity>
+        
+        <Text style={styles.title}>Air Guard.</Text>
+        <Text style={styles.subtitle}>¿Listo para dar el paso?</Text>
         {/* You can add overlay content here */}
 
       {/* Form Section */}
       <View style={styles.formContainer}>
-        <Text style={styles.header}>Registration</Text>
-        <TextInput style={styles.input} placeholder="Name" />
+        <Text style={styles.header}>Registro</Text>
+        <TextInput style={styles.input} placeholder="Nombre" />
         <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
 
         {/* DatePicker para la fecha de nacimiento */}
         <View style={styles.datePicker}>
-        <Button onPress={showDatePicker} title="Choose Date" />
+        <Button onPress={showDatePicker} title="Escoge una fecha" />
         {/* DatePicker condicional */}
         {isDatePickerVisible && (
           <DatePicker

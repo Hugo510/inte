@@ -6,14 +6,16 @@ import styles from './homeScreenNo.styles';
 const HomeScreenNo = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   return (
-    <ImageBackground source={require('../../assets/images/background.jpg')} style={styles.backgroundImage}>
-    <View style={styles.overlay}>
     <View style={styles.container}>
+    {/* <ImageBackground source={require('../../assets/images/background.jpg')} style={styles.backgroundImage}> */}
+    <ImageBackground source={require('../../assets/images/fondoEdificios.jpg')} style={styles.backgroundImage}>
+    <View style={styles.overlay}>
+    
       {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.logo}>Integradora</Text>
+        <Text style={styles.logo}>AirGuard</Text>
         <TouchableOpacity style={styles.menuIcon} onPress={() => setMenuVisible(!menuVisible)}>
-        <Icon name="menu" size={24} color="#fff"/>
+        {/* <Icon name="menu" size={24} color="#fff"/> */}
         </TouchableOpacity>
       </View>
 
@@ -24,7 +26,7 @@ const HomeScreenNo = ({ navigation }) => {
               <Icon name="close" size={30} color="#000"/>
             </TouchableOpacity>
           </View>
-          <ScrollView style={{flex: 1}} contentContainerStyle={{ flexGrow: 1 }}>
+          <ScrollView contentContainerStyle={styles.menuContent}>
           <View style={styles.menuContent}>
           <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.menuItem}>
             <Icon name="home" size={24} color="#000"/>
@@ -49,13 +51,13 @@ const HomeScreenNo = ({ navigation }) => {
       
       
       {/* Main Content Section */}
-      <ScrollView style={{flex: 1}} contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
         {/* Hero Section */}
         <View style={styles.heroSection}>
           <Text style={styles.heroTitle}>Easy Way to Manage Your Accounting Software</Text>
           <Text style={styles.heroSubtitle}>Accounting is built into all small businesses' operations...</Text>
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('Login')}>
+            <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('Api')}>
               <Text style={styles.buttonText}>Log In</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.demoButton}>
@@ -130,8 +132,9 @@ const HomeScreenNo = ({ navigation }) => {
       
       </ScrollView>
     </View>
-    </View>
     </ImageBackground>
+    </View>
+    
   );
 };
 

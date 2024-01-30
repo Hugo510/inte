@@ -19,8 +19,12 @@ export default StyleSheet.create({
     height: null,
   },
   overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)', // Ajusta la opacidad aquí
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Color negro con opacidad del 50%
   },
   header: {
     flexDirection: 'row',
@@ -51,14 +55,16 @@ export default StyleSheet.create({
     width: '78%', // ancho del menú
     paddingTop: 55, // Espacio para evitar superposición con la barra de estado
     zIndex: 1000, // Asegurar que se sobreponga
-  },
+    flexDirection: 'column', // Distribuir el contenido verticalmente
+    justifyContent: 'flex-start', // Alinear el contenido en la parte superior
+},
+  
   scrollView: {
-    //flexGrow: 1, // Permite que el contenido crezca para ocupar el espacio, asegurándose de que el botón inferior esté visible.
+    flexGrow: 1, // Permite que el contenido crezca para ocupar el espacio, asegurándose de que el botón inferior esté visible.
   },
   menuContent: {
-    //flexGrow: 1, // Esto asegura que el contenido use todo el espacio disponible
-    //justifyContent: 'space-between', // Esto distribuirá los elementos del menú a lo largo de todo el contenedor
-    //paddingTop: 30,
+    
+    paddingVertical: 30, // Espacio vertical entre elementos del menú
   },
   menuItem: {
     flexDirection: 'row',
@@ -81,9 +87,9 @@ export default StyleSheet.create({
     borderWidth: 2,
     borderColor: '#000', // Borde blanco para el botón "Try For Free"
     borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    margin: 40,
-  },
+    backgroundColor: '#39ABEA',
+    marginVertical: 10, // Espacio vertical entre el botón y otros elementos
+},
   tryFreeText: {
     textAlign: 'center',
     color: '#000', // Color del texto para "Try For Free"
@@ -95,7 +101,7 @@ export default StyleSheet.create({
     paddingBottom: .5,
     padding: 15,
     marginTop: 10,
-    backgroundColor: '#DAE8FC', // Color de fondo para la sección principal
+    backgroundColor: 'rgba(0,0,0,.75)', // Color de fondo para la sección principal
     width: '80%',
     alignSelf: 'center',
     borderRadius: 50, // Añade esta línea para redondear las esquinas
@@ -103,13 +109,13 @@ export default StyleSheet.create({
   heroTitle: {
     fontSize: adaptiveFontSize(24), // Ajusta el tamaño de fuente según el ancho de pantalla
     fontWeight: 'bold',
-    color: '#0056D2', // Color del título principal
+    color: '#fff', // Color del título principal
     marginBottom: 10,
     textAlign: 'center',
   },
   heroSubtitle: {
     fontSize: adaptiveFontSize(18), // Ajusta el tamaño de fuente según el ancho de pantalla
-    color: '#000', // Color del subtítulo
+    color: '#fff', // Color del subtítulo
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -120,7 +126,7 @@ export default StyleSheet.create({
     width: width - adaptiveWidth(0.1), // Margen horizontal basado en el porcentaje de la pantalla
   },
   getStartedButton: {
-    backgroundColor: '#5E2750', // Color del botón "Get Started"
+    backgroundColor: '#39ABEA', // Color del botón "Get Started"
     paddingVertical: adaptiveHeight(0.015),
     paddingHorizontal: adaptiveWidth(0.05),
     borderRadius: 20,
@@ -148,7 +154,7 @@ export default StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#FF4563', // Color del borde para "Free Demo"
+    borderColor: '#39ABEA', // Color del borde para "Free Demo"
     marginLeft: 10,
   },
   featureCard: {
@@ -157,7 +163,7 @@ export default StyleSheet.create({
     margin: 10,
     padding: 10,
     borderRadius: 10,
-    backgroundColor: '#FF4563', // Fondo de las tarjetas de características
+    backgroundColor: 'rgba(24,171,234,0.8)', // Fondo de las tarjetas de características
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 3,
@@ -169,12 +175,12 @@ export default StyleSheet.create({
   featureCardTitle: {
     fontSize: adaptiveFontSize(18), // Tamaño de fuente adaptativo
     fontWeight: 'bold',
-    color: '#4A476F', // Color del título de las tarjetas de características
+    color: '#fff', // Color del título de las tarjetas de características
     marginTop: 8,
   },
   featureCardText: {
     fontSize: adaptiveFontSize(14),
-    color: '#5755bf', // Color del texto en las tarjetas de características
+    color: '#fff', // Color del texto en las tarjetas de características
     textAlign: 'center',
   },
   brandsSection: {
@@ -184,7 +190,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     paddingHorizontal: 10, // Add horizontal padding for spacing from the screen edges
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(0,0,0,.75)', 
     paddingTop: 1,
     margin: 15,
     borderRadius: 35,
@@ -192,7 +198,7 @@ export default StyleSheet.create({
   titleText: {
     fontWeight: 'bold', // Make the font bold
     fontSize: 24, // Increase font size
-    color: '#000', // Set the text color
+    color: '#fff', // Set the text color
     width: '100%', // Ensure the title takes the full width
     textAlign: 'center', // Center the title text
     marginBottom: 20, // Add space below the title
@@ -214,25 +220,25 @@ export default StyleSheet.create({
   profileText: {
     marginTop: 5, // Add space between the image and text
     fontSize: 15, // Set the font size for the text
-    color: '#000', // Set the text color
+    color: '#fff', // Set the text color
     // Add any additional styling you want for the text
   },
 
   featureIcon: {
-    color: '#6b5cc5',
+    color: '#fff',
     width: 30,
     height: 30, // Púrpura vibrante para los iconos
   },
   featureText: {
     marginTop: 8,
     fontWeight: 'bold',
-    color: '#4248b8', // Azul profundo para el texto de las características
+    color: '#fff', // Azul profundo para el texto de las características
   },
   footer: {
     paddingVertical: 20,
     paddingHorizontal: 10,
     width: width,
-    backgroundColor: '#525558', // Puedes ajustar el color de fondo según la paleta
+    backgroundColor: '#000', // Puedes ajustar el color de fondo según la paleta
     alignItems: 'center',
     justifyContent: 'center',
   },

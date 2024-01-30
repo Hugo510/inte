@@ -12,13 +12,26 @@ export default StyleSheet.create({
       flex: 1,
       
     },
-    imageContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 80,
-    },
+  backButton: {
+    position: 'absolute', // Posicionamiento absoluto
+    top: 10, // Ajusta según sea necesario
+    left: 10, // Ajusta según sea necesario
+    
+},
+navBack: {
+  fontSize: 39, // Aumenta el tamaño del ícono
+  color: 'white', // Cambia el color según tus preferencias
+  marginTop: 10,
+  marginLeft: 17,
+},
+  imageContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 80,
+    position: 'relative', // Agrega esto para permitir el posicionamiento absoluto
+},
     title: {
       ...globalStyles.defaultFont,
       fontSize: 48,
@@ -62,6 +75,7 @@ export default StyleSheet.create({
     datePicker: {
         width: '100%',
         marginVertical: 10,
+        backgroundColor: 'rgba(0,0,0,0.8)', 
       },
       
       checkboxContainer: {
@@ -79,14 +93,29 @@ export default StyleSheet.create({
       marginTop: 20,
     },
     button: {
-      backgroundColor: 'teal',
+      backgroundColor: 'rgba(24,171,234,0.8)',
       padding: 10,
       borderRadius: 5,
       width: '48%',
+      
+    }, 
+    cancelButton: {
+      borderWidth: 3,
+      borderColor: 'rgba(24,171,234,0.8)',
+      padding: 15,
+      borderRadius: 20,
+      marginHorizontal: 15,
+    },
+    confirmButton: {
+      backgroundColor: 'rgba(24,171,234,0.8)',
+      padding: 15,
+      borderRadius: 20,
+      marginHorizontal: 15,
     },
     buttonText: {
+      fontSize: 15,
       textAlign: 'center',
-      color: 'white',
+      color: 'black',
       fontWeight: 'bold',
     },
     // Añade estilos adicionales según sea necesario

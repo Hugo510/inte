@@ -3,6 +3,7 @@ import HomeStackNavigator from './HomeStackNavigator';
 import LoginScreen from '../views/LoginScreenV/LoginScreen';
 import RegisterScreen from '../views/registerScreen/RegisterScreen';
 import MQTTComponent from '../views/comunication/comunicationScreen';
+import CardsScreen from '../views/cards/cardsScreen';
 //import ProfileScreen from '../views/profileScreen/ProfileScreen';
 
 const Stack = createNativeStackNavigator();
@@ -14,6 +15,7 @@ const AppNavigator = () => {
       <Stack.Screen name="HomeStack" component={HomeStackNavigator} options={{ headerShown: false }}/>
       <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="Api" component={MQTTComponent} options={{ headerShown: false }}/>
+      <Stack.Screen name="Cards" component={CardsScreen} options={{ headerShown: false }}/>
       
       {/* Agrega aquí más pantallas si es necesario */}
     </Stack.Navigator>

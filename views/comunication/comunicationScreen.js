@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Client } from 'paho-mqtt';
 
-const MQTTComponent = () => {
-  const [message, setMessage] = useState('');
+const MQTTComponent = (props) => {
+  const [messages, setMessages] = useState([]); // Inicializar como arreglo vacío
 
   useEffect(() => {
     // Crear cliente MQTT con la URI completa y el Client ID
     const clientId = 'clientId_' + Math.random().toString(16).slice(2, 10);
-    // Cambio aquí: se ha actualizado el puerto a 8883 y se habilita SSL
+    
     const client = new Client('broker.hivemq.com', Number(8000), clientId);
   
     // Configurar conexión segura
     const options = {
-      useSSL: false, // Habilitar SSL/TLS
+      useSSL: false,
       onSuccess: () => {
         console.log('Conectado a MQTT');
         client.subscribe('/hugo/temperatura');
@@ -35,8 +35,9 @@ const MQTTComponent = () => {
     // Manejar mensajes entrantes
     client.onMessageArrived = message => {
       console.log('Mensaje recibido:', message.payloadString);
-      setMessage(message.payloadString);
+      setMessages(prevMessages => [...prevMessages, message.payloadString]); // Usar 'message.payloadString' aquí
     };
+    
   
     // Conectar al broker MQTT
     client.connect(options);
@@ -47,12 +48,16 @@ const MQTTComponent = () => {
         client.disconnect();
       }
     };
-  }, []);
+  }, [props.networkStatus, props.brokerConfig]); // Dependencias añadidas aquí
   
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Mensaje MQTT: {message}</Text>
+      <ScrollView style={styles.scrollView}>
+        {messages.map((msg, index) => (
+          <Text key={index} style={styles.text}>Mensaje {index + 1}: {msg}</Text>
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -64,6 +69,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f5fcff',
+  },
+  scrollView: {
+    width: '100%',
   },
   text: {
     fontSize: 20,

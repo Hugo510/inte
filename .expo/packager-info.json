@@ -1,6 +1,10 @@
 {
   "devToolsPort": 19002,
+<<<<<<< HEAD
   "expoServerPort": 19000,
+=======
+  "expoServerPort": null,
+>>>>>>> origin/testing01Hugo
   "packagerPort": 19000,
   "packagerPid": null,
   "expoServerNgrokUrl": null,

@@ -12,6 +12,9 @@ const LoginScreen = ({ navigation }) => {
             style={styles.container}
         >
             <View style={styles.contentContainer}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.navBack}>&lt;</Text>
+        </TouchableOpacity>
                 <Text style={styles.header}>Welcome</Text>
                 <Text style={styles.subHeader}>Sign in to continue</Text>
                 

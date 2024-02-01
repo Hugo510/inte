@@ -30,11 +30,16 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
+  contentContainer: {
+    flex: 1, // Ocupa el espacio restante después de CategoriesMenu
+    // Puedes agregar más estilos según sea necesario
+},
   categoriesContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     paddingVertical: 10,
     backgroundColor: '#f8f8f8',
+    alignItems: 'center', // Ejemplo de estilo
   },
   categoryButton: {
     paddingVertical: 8,

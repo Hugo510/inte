@@ -1,4 +1,15 @@
-const Admin = require('../models/admin.model.js'); // Asegúrate de que la ruta sea correcta
+const Admin = require('../models/admin.model.js'); 
+const { authenticateUser } = require('../utils/auth.utils');
+
+const loginAdmin = async (req, res) => {
+    try {
+      // Llamar a la función de autenticación común con el modelo de administrador correspondiente
+      const token = await authenticateUser(req.body.email, req.body.password, AdminModel);
+      res.json({ message: 'Admin logged in successfully', token });
+    } catch (error) {
+      res.status(401).send(error.message);
+    }
+  };
 
 const registerAdmin = async (req, res) => {
     const { email, password, ...otrosDatos } = req.body;
@@ -28,4 +39,4 @@ const getAdmins = async (req, res) => {
     }
 };
 
-module.exports = { registerAdmin, getAdmins };
+module.exports = { registerAdmin, getAdmins, loginAdmin };

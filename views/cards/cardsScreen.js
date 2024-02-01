@@ -9,7 +9,7 @@ const categories = ['ALL', 'HUMO', 'INFRAROJO', 'TEMPERATURA', 'CAMARA', 'HUMEDA
 
 
 const CardsScreen = ({ navigation }) => {
-  const [messages, setMessages] = useState(""); // Estado para un único mensaje
+  const [messages, setMessages] = useState([]); // Estado para un único mensaje
   const [selectedCategory, setSelectedCategory] = useState('ALL'); // Estado para la categoría seleccionada
 
 
@@ -18,7 +18,11 @@ const CardsScreen = ({ navigation }) => {
       const clientId = 'clientId_' + Math.random().toString(16).slice(2, 8);
       const client = new Client('broker.hivemq.com', 8000, clientId);
   
-      const topics = categories.map(category => `/hugo/${category.toLowerCase()}`);
+      const topics = categories.flatMap(category => [
+        `/hugo/${category.toLowerCase()}/max`,
+        `/hugo/${category.toLowerCase()}/min`
+      ]);
+      
       const options = {
         useSSL: false,
         onSuccess: () => {
@@ -39,13 +43,25 @@ const CardsScreen = ({ navigation }) => {
       client.onMessageArrived = (message) => {
         console.log('Mensaje recibido:', message.payloadString);
         try {
-            const category = categories.find(c => message.destinationName.includes(c.toLowerCase()));
-            const newMessage = { type: category, content: message.payloadString, id: generateUniqueId() };
-            setMessages(prevMessages => [...prevMessages, newMessage]);
+          // Extraer la categoría y si es max o min del topic
+          const topicParts = message.destinationName.split('/');
+          const category = topicParts[2].toUpperCase(); // Asume que el topic es /hugo/[categoria]/[max|min]
+          const type = topicParts[3]; // 'max' o 'min'
+      
+          // Creando un nuevo mensaje con la información relevante
+          const newMessage = {
+            category,
+            type,
+            value: message.payloadString, // El único valor recibido en el mensaje
+            id: generateUniqueId()
+          };
+      
+          // Actualiza el estado de mensajes con el nuevo mensaje
+          setMessages(prevMessages => [...prevMessages, newMessage]);
         } catch (error) {
-            console.error('Error al parsear el mensaje MQTT:', error);
+          console.error('Error al procesar el mensaje MQTT:', error);
         }
-    };
+      };
     
       
       // Función para generar un ID único (puede ser tan simple o complejo como necesites)
@@ -115,32 +131,54 @@ const CardsScreen = ({ navigation }) => {
 
 
 const OfferCard = ({ type, content, title, description, code }) => {
+  // Determina el tipo de mensaje basado en el contenido
   const isAlert = content.includes("abajo");
+  const isWarning = content.includes("advertencia");
+  const isInfo = content.includes("información");
 
   if (isAlert) {
+    // Tarjeta para alertas
     return (
-        <Card containerStyle={{ backgroundColor: 'red' }}>
-            <Icon name="times-circle" size={50} color="#fff" />
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>Alerta, debajo del nivel</Text>
-            {/* Puedes añadir más información aquí si es necesario */}
-        </Card>
-    );
-}
-
-// Si no es una alerta, retorna la tarjeta normal
-return (
-    <Card>
+      <Card containerStyle={{ backgroundColor: 'red' }}>
+        <Icon name="times-circle" size={50} color="#fff" /> 
         <Text style={styles.cardDiscount}>{type}</Text>
-        <Text>{title}</Text>
-        <Text style={styles.cardConditions}>{description}</Text>
-        <View style={styles.cardFooter}>
-            <Text>{code}</Text>
-            <TouchableOpacity style={styles.copyButton} onPress={() => copyToClipboard(code)}>
-                <Text>COPY CODE</Text>
-            </TouchableOpacity>
-        </View>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Alerta, debajo del nivel</Text>
+      </Card>
+    );
+  } else if (isWarning) {
+    // Tarjeta para advertencias
+    return (
+      <Card containerStyle={{ backgroundColor: 'orange' }}>
+        <Icon name="exclamation-triangle" size={50} color="#fff" />
+        <Text style={styles.cardDiscount}>{type}</Text>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Advertencia, condición inestable</Text>
+      </Card>
+    );
+  } else if (isInfo) {
+    // Tarjeta para información general
+    return (
+      <Card containerStyle={{ backgroundColor: 'blue' }}>
+        <Icon name="info-circle" size={50} color="#fff" />
+        <Text style={styles.cardDiscount}>{type}</Text>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Información relevante</Text>
+      </Card>
+    );
+  }
+
+  // Tarjeta general si no se cumplen las condiciones anteriores
+  return (
+    <Card>
+      <Text style={styles.cardDiscount}>{type}</Text>
+      <Text>{title}</Text>
+      <Text style={styles.cardConditions}>{description}</Text>
+      <View style={styles.cardFooter}>
+        <Text>{code}</Text>
+        <TouchableOpacity style={styles.copyButton} onPress={() => {/* Implementa la función de copiado aquí */}}>
+          <Text>COPY CODE</Text>
+        </TouchableOpacity>
+      </View>
     </Card>
-);
+  );
 };
 
 const copyToClipboard = (code) => {

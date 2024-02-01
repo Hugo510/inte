@@ -57,7 +57,7 @@ export default StyleSheet.create({
   cardDiscount: {
     fontSize: fontSizeResponsive * 1.2, // Usa una escala basada en el tamaño base
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#000',
     marginBottom: 5,
   },
   cardConditions: {

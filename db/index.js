@@ -1,4 +1,5 @@
 const app = require('./app');
+require('dotenv').config();
 const { connectDB } = require('./config/db');
 
 // Iniciar la conexión a la base de datos y luego el servidor

@@ -135,19 +135,21 @@ const RangeSlider = ({ category, values, onValueChange, onSend }) => {
 
     const sendMessage = (category, values) => {
       if (client) {
-          const messageData = {
-              min: values.min,
-              max: values.max
-          };
-          const message = new Message(JSON.stringify(messageData));
-          message.destinationName = `/hugo/${category}`;
-  
-          console.log(`Enviando mensaje a MQTT: ${message.payloadString}`);
-          console.log(`Topic: ${message.destinationName}`);
-  
-          client.send(message);
+        // Enviar mensaje para el valor mínimo
+        const minMessage = new Message(JSON.stringify({ value: values.min }));
+        minMessage.destinationName = `/hugo/${category}/min`;
+        console.log(`Enviando mensaje mínimo a MQTT: ${minMessage.payloadString}`);
+        console.log(`Topic: ${minMessage.destinationName}`);
+        client.send(minMessage);
+    
+        // Enviar mensaje para el valor máximo
+        const maxMessage = new Message(JSON.stringify({ value: values.max }));
+        maxMessage.destinationName = `/hugo/${category}/max`;
+        console.log(`Enviando mensaje máximo a MQTT: ${maxMessage.payloadString}`);
+        console.log(`Topic: ${maxMessage.destinationName}`);
+        client.send(maxMessage);
       }
-  };
+    };
   
     return (
         <SafeAreaView style={styles.safeArea}>

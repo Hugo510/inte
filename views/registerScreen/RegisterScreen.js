@@ -8,6 +8,10 @@ import { RadioButton, Checkbox  } from 'react-native-paper'; // Asegúrate de in
 
 
 const RegisterScreen = ({ navigation }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
     const [date, setDate] = useState(new Date());
     const [gender, setGender] = useState('male');
     const [checked, setChecked] = useState(false);
@@ -28,6 +32,41 @@ const RegisterScreen = ({ navigation }) => {
     const currentDate = selectedDate || date;
     setDate(currentDate);
     hideDatePicker();
+  };
+
+  const handleRegister = async () => {
+    // Crear el objeto de datos del usuario para enviar
+    const userData = {
+      name,
+      email,
+      password, // Asegúrate de tener un campo de contraseña en tu formulario
+      birthDate: date.toISOString(),
+      gender,
+      hasPhone: checked,
+    };
+  
+    try {
+      const response = await fetch('http://localhost:3000/api/admins/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+  
+      const json = await response.json();
+      if (response.ok) {
+        // Registro exitoso
+        Alert.alert('Éxito', 'Usuario registrado correctamente');
+        // Opcional: Navegar a la pantalla de inicio de sesión o a la pantalla principal
+      } else {
+        // Error en el registro
+        Alert.alert('Error', json.message || 'No se pudo registrar el usuario');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'No se pudo conectar al servidor');
+    }
   };
 
 
@@ -54,8 +93,19 @@ const RegisterScreen = ({ navigation }) => {
       {/* Form Section */}
       <View style={styles.formContainer}>
         <Text style={styles.header}>Registro</Text>
-        <TextInput style={styles.input} placeholder="Nombre" />
-        <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
+          value={name}
+          onChangeText={setName} // Actualiza el estado del nombre
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail} // Actualiza el estado del email
+        />
 
         {/* DatePicker para la fecha de nacimiento */}
         <View style={styles.datePicker}>
@@ -98,7 +148,7 @@ const RegisterScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.cancelButton}>
             <Text style={styles.buttonText}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.confirmButton}>
+          <TouchableOpacity style={styles.confirmButton} onPress={handleRegister}>
             <Text style={styles.buttonText}>Confirm</Text>
           </TouchableOpacity>
         

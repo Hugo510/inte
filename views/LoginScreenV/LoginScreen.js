@@ -1,11 +1,41 @@
 // views/LoginScreen.js
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, Button } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles from '../LoginScreenV/LoginScreen.styles'; // Asegúrate de que la ruta sea correcta
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const LoginScreen = ({ navigation }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = async () => {
+        try {
+          const response = await fetch('http://localhost:3000/api/admins/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+            }),
+          });
+    
+          const json = await response.json();
+          if (response.ok) {
+            // Guardar el token, navegar a la siguiente pantalla, etc.
+            console.log('Login exitoso:', json);
+          } else {
+            // Mostrar mensaje de error
+            Alert.alert('Error', json.message || 'Ocurrió un error al intentar iniciar sesión');
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+
     return (
         <LinearGradient
             colors={['#8EC5FC', '#E0C3FC']}
@@ -23,16 +53,21 @@ const LoginScreen = ({ navigation }) => {
                     placeholder="Email"
                     keyboardType="email-address"
                     placeholderTextColor="#b1b1b1"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
                 />
                 
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
-                    secureTextEntry
                     placeholderTextColor="#b1b1b1"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
                 />
                 
-                <TouchableOpacity style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Sign in</Text>
                 </TouchableOpacity>
                 

@@ -1,4 +1,5 @@
-const User = require('../models/user.model.js'); // Asegúrate de que la ruta sea correcta
+const User = require('../models/user.model.js');
+const { authenticateUser } = require('../utils/auth.utils');
 
 const register = async (req, res) => {
     const {
@@ -30,26 +31,14 @@ const register = async (req, res) => {
     }
 };
 
-const login = async (req, res) => {
-    const { username, password } = req.body;
-
+const loginUser = async (req, res) => {
     try {
-        const user = await User.findOne({ username });
-
-        if (!user) {
-            return res.status(401).send('Usuario no encontrado');
-        }
-
-        // Aquí deberías comparar la contraseña proporcionada con la almacenada usando un método seguro
-        if (user.password !== password) {
-            return res.status(401).send('Contraseña incorrecta');
-        }
-
-        res.send('Login exitoso');
+      // Llamar a la función de autenticación común con el modelo de usuario correspondiente
+      const token = await authenticateUser(req.body.email, req.body.password, UserModel);
+      res.json({ message: 'User logged in successfully', token });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error en el servidor');
+      res.status(401).send(error.message);
     }
-};
+  };
 
-module.exports = { register, login };
+module.exports = { register, loginUser };

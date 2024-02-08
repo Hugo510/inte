@@ -1,40 +1,49 @@
 // views/LoginScreen.js
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, TextInput, TouchableOpacity, Alert, Button } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles from '../LoginScreenV/LoginScreen.styles'; // Asegúrate de que la ruta sea correcta
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleLogin = async () => {
-        try {
-          const response = await fetch('http://localhost:3000/api/admins/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: email,
-              password: password,
-            }),
+      try {
+          const response = await fetch('http://localhost:3000/api/users/login', { // Asegúrate de que la URL sea correcta y posiblemente unifique la ruta de login para ambos roles
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  email: email,
+                  password: password,
+              }),
           });
-    
+
           const json = await response.json();
           if (response.ok) {
-            // Guardar el token, navegar a la siguiente pantalla, etc.
-            console.log('Login exitoso:', json);
+              console.log('Login exitoso:', json);
+              await AsyncStorage.setItem('userToken', json.token);
+              await AsyncStorage.setItem('userRole', json.role); // Guarda el rol del usuario
+              
+              // Decide a qué pantalla navegar basándose en el rol del usuario
+              if (json.role === 'admin') {
+                  navigation.navigate('AdminDashboard'); // Asegúrate de tener esta pantalla configurada en tu navegador
+              } else if (json.role === 'monitor') {
+                  navigation.navigate('MonitorDashboard'); // Asegúrate de tener esta pantalla configurada en tu navegador
+              }
           } else {
-            // Mostrar mensaje de error
-            Alert.alert('Error', json.message || 'Ocurrió un error al intentar iniciar sesión');
+              Alert.alert('Error', json.message || 'Ocurrió un error al intentar iniciar sesión');
           }
-        } catch (error) {
+      } catch (error) {
           console.error(error);
-        }
-      };
-
+      }
+  };
 
     return (
         <LinearGradient

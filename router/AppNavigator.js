@@ -1,3 +1,4 @@
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeStackNavigator from './HomeStackNavigator';
 import LoginScreen from '../views/LoginScreenV/LoginScreen';
@@ -16,6 +17,7 @@ import React, { useState, useEffect } from 'react';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
@@ -33,12 +35,12 @@ const AppNavigator = () => {
       <Stack.Navigator initialRouteName="HomeStack">
         {userRole === 'admin' ? (
           <>
-            <Stack.Screen name="AdminScreen" component={AdminScreen} />
+            {/* <Stack.Screen name="AdminScreen" component={AdminScreen} /> */}
             {/* Incluir aquí otras pantallas accesibles para admin */}
           </>
         ) : (
           <>
-            <Stack.Screen name="MonitorScreen" component={MonitorScreen} />
+            {/* <Stack.Screen name="MonitorScreen" component={MonitorScreen} /> */}
             {/* Incluir aquí otras pantallas accesibles para monitores */}
           </>
         )}

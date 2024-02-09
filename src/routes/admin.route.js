@@ -1,17 +1,23 @@
 const express = require('express');
-//const { registerAdmin, getAdmins } = require('../controller/admin.controller.js');
-const adminController = require('../controller/admin.controller');
 const router = express.Router();
+const { registerAdmin, loginAdmin, getAdmins, getAdminById, updateAdmin, deleteAdmin } = require('../controllers/admin.controller');
 
-// Ruta para registrar un nuevo administrador
-router.post('/register', adminController.registerAdmin);
-//router.get('/getAdmins', getAdmins);
+// Registro de administrador
+router.post('/register', registerAdmin);
 
-// Ruta para iniciar sesión como administrador
-router.post('/login/admin', adminController.loginAdmin);
+// Inicio de sesión de administrador
+router.post('/login', loginAdmin);
 
-// Ruta protegida para admin
+// Obtener todos los administradores
+router.get('/', getAdmins);
 
+// Obtener un administrador por ID
+router.get('/:id', getAdminById);
 
+// Actualizar un administrador
+router.put('/:id', updateAdmin);
+
+// Eliminar un administrador
+router.delete('/:id', deleteAdmin);
 
 module.exports = router;

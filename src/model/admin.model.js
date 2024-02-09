@@ -5,7 +5,8 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,  
-        unique: true
+        unique: true,
+        index: true, // Asegura que el campo email esté indexado
     },
     password: {
         type: String,

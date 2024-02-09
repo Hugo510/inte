@@ -1,4 +1,4 @@
-const Device = require('../model/device.model.js'); // Asegúrate de que la ruta sea correcta
+const Device = require('../model/device.model.js'); 
 
 const addDevice = async (req, res) => {
     const { adminUser, ...deviceData } = req.body;
@@ -27,4 +27,62 @@ const getDevices = async (req, res) => {
     }
 };
 
-module.exports = { addDevice, getDevices };
+const updateDevice = async (req, res) => {
+    try {
+        const deviceId = req.params.id;
+        const deviceData = req.body;
+
+        const updatedDevice = await Device.findByIdAndUpdate(deviceId, deviceData, { new: true });
+        if (!updatedDevice) {
+            return res.status(404).send('Device not found');
+        }
+
+        res.json({ message: 'Device updated successfully', device: updatedDevice });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al actualizar el dispositivo');
+    }
+};
+
+const deleteDevice = async (req, res) => {
+    try {
+        const deviceId = req.params.id;
+        const deletedDevice = await Device.findByIdAndDelete(deviceId);
+
+        if (!deletedDevice) {
+            return res.status(404).send('Device not found');
+        }
+
+        res.json({ message: 'Device deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al eliminar el dispositivo');
+    }
+};
+
+const getDeviceById = async (req, res) => {
+    try {
+        const deviceId = req.params.id;
+        const device = await Device.findById(deviceId).populate('adminUser');
+
+        if (!device) {
+            return res.status(404).send('Device not found');
+        }
+
+        res.json(device);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al obtener el dispositivo');
+    }
+};
+
+
+
+module.exports = {
+    addDevice,
+    getDevices,
+    updateDevice,
+    deleteDevice,
+    getDeviceById
+};
+

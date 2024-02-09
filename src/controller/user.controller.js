@@ -16,13 +16,78 @@ const registerUser = async (req, res) => {
   }
 };
 const loginUser = async (req, res) => {
-    try {
-      // Llamar a la función de autenticación común con el modelo de usuario correspondiente
-      const token = await authenticateUser(req.body.email, req.body.password, UserModel);
-      res.json({ message: 'User logged in successfully', token });
-    } catch (error) {
-      res.status(401).send(error.message);
-    }
-  };
+  try {
+    const token = await authenticateUser(req.body.email, req.body.password, User); // Corrección aquí
+    res.json({ message: 'User logged in successfully', token });
+  } catch (error) {
+    res.status(401).send(error.message);
+  }
+};
 
-module.exports = { registerUser, loginUser };
+  const updateUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const updateData = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+        if (!updatedUser) {
+            return res.status(404).send('User not found');
+        }
+
+        res.json({ message: 'User updated successfully', user: updatedUser });
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+};
+
+
+const deleteUser = async (req, res) => {
+  try {
+      const userId = req.params.id;
+      const deletedUser = await User.findByIdAndDelete(userId);
+
+      if (!deletedUser) {
+          return res.status(404).send('User not found');
+      }
+
+      res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+      res.status(500).send(error.message);
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+      const userId = req.params.id;
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).send('User not found');
+      }
+
+      res.json(user);
+  } catch (error) {
+      res.status(500).send(error.message);
+  }
+};
+
+
+const getUsers = async (req, res) => {
+  try {
+      const users = await User.find({});
+      res.json(users);
+  } catch (error) {
+      res.status(500).send(error.message);
+  }
+};
+
+
+module.exports = {
+  registerUser,
+  loginUser,
+  updateUser,
+  deleteUser,
+  getUserById,
+  getUsers
+};
+

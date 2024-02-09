@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,  
-        unique: true
+        unique: true,
+        index: true, // Asegura que el campo email esté indexado
     },
     password: {
         type: String,
@@ -35,25 +36,21 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', function(next) {
-    let user = this;
-  
-    // solo hashea la contraseña si ha sido modificada (o es nueva)
-    if (!user.isModified('password')) return next();
-  
-    // genera un salt
-    bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
-      if (err) return next(err);
-  
-      // hashea la contraseña usando el nuevo salt
+  let user = this;
+
+  if (!user.isModified('password')) return next();
+
+  bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+      if (err) return next(err); // Manejo de error mejorado
+
       bcrypt.hash(user.password, salt, function(err, hash) {
-        if (err) return next(err);
-  
-        // sobrescribe la contraseña escrita con el hash
-        user.password = hash;
-        next();
+          if (err) return next(err); // Manejo de error mejorado
+
+          user.password = hash;
+          next();
       });
-    });
   });
+});
 
 
 // Método para comparar contraseñas (útil para autenticación)

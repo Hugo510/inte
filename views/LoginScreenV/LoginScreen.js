@@ -1,49 +1,51 @@
 // views/LoginScreen.js
 import React, { useState } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, Button } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles from '../LoginScreenV/LoginScreen.styles'; // Asegúrate de que la ruta sea correcta
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false); // Nuevo estado para manejar el tipo de usuario
+
 
     const handleLogin = async () => {
-      try {
-          const response = await fetch('http://localhost:3000/api/users/login', { // Asegúrate de que la URL sea correcta y posiblemente unifique la ruta de login para ambos roles
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  email: email,
-                  password: password,
-              }),
-          });
-
-          const json = await response.json();
-          if (response.ok) {
-              console.log('Login exitoso:', json);
-              await AsyncStorage.setItem('userToken', json.token);
-              await AsyncStorage.setItem('userRole', json.role); // Guarda el rol del usuario
-              
-              // Decide a qué pantalla navegar basándose en el rol del usuario
-              if (json.role === 'admin') {
-                  navigation.navigate('AdminDashboard'); // Asegúrate de tener esta pantalla configurada en tu navegador
-              } else if (json.role === 'monitor') {
-                  navigation.navigate('MonitorDashboard'); // Asegúrate de tener esta pantalla configurada en tu navegador
-              }
-          } else {
-              Alert.alert('Error', json.message || 'Ocurrió un error al intentar iniciar sesión');
-          }
-      } catch (error) {
-          console.error(error);
-      }
-  };
+        const endpoint = isAdmin ? 'http://localhost:3000/api/admins/login' : 'http://localhost:3000/api/users/login';
+        
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
+  
+            const json = await response.json();
+            if (response.ok) {
+                console.log('Login exitoso:', json);
+                await AsyncStorage.setItem('userToken', json.token);
+                await AsyncStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
+                
+                // Navega a la pantalla correspondiente
+                if (isAdmin) {
+                    navigation.navigate('AdminDashboard');
+                } else {
+                    navigation.navigate('UserDashboard'); // Asume que tienes una pantalla para usuarios
+                }
+            } else {
+                Alert.alert('Error', json.message || 'Ocurrió un error al intentar iniciar sesión');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+      };
 
     return (
         <LinearGradient
@@ -76,6 +78,14 @@ const LoginScreen = ({ navigation }) => {
                     secureTextEntry
                 />
                 
+                <Switch
+                    value={isAdmin}
+                    onValueChange={(newValue) => setIsAdmin(newValue)}
+                    color="#6200ee"
+                />
+                <Text>{isAdmin ? 'Iniciar sesión como Admin' : 'Iniciar sesión como Usuario'}</Text>
+                
+
                 <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Sign in</Text>
                 </TouchableOpacity>

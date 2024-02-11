@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
@@ -22,4 +23,25 @@ const verifyTokenAndRole = (roles) => {
   };
 };
 
-module.exports = verifyTokenAndRole;
+const authenticateUser = async (email, password, UserModel) => {
+    // Buscar el usuario por email
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    // Comparar la contraseña proporcionada con la hasheada en la base de datos
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        throw new Error('Contraseña incorrecta');
+    }
+
+    // Usuario autenticado, generar un token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+    });
+
+    return token;
+};
+
+module.exports = { authenticateUser, verifyTokenAndRole };

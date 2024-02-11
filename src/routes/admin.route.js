@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerAdmin, loginAdmin, getAdmins, getAdminById, updateAdmin, deleteAdmin } = require('../controllers/admin.controller');
+const { registerAdmin, loginAdmin, getAdmins, getAdminById, updateAdmin, deleteAdmin } = require('../controller/admin.controller');
 
 // Registro de administrador
 router.post('/register', registerAdmin);

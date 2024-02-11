@@ -1,6 +1,11 @@
-const app = require('./app');
+// Asegúrate de que esto sea lo primero en ejecutarse para cargar las variables de entorno
 require('dotenv').config();
+
+const app = require('./app');
 const { connectDB } = require('./config/db');
+
+// La consola debe imprimir la clave secreta si dotenv está cargado correctamente
+console.log(process.env.JWT_SECRET_KEY, "<<");
 
 // Iniciar la conexión a la base de datos y luego el servidor
 connectDB()

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addDevice, getDevices, updateDevice, deleteDevice, getDeviceById } = require('../controllers/device.controller');
+const { addDevice, getDevices, updateDevice, deleteDevice, getDeviceById } = require('../controller/device.controller');
 
 // Agregar un dispositivo
 router.post('/', addDevice);

@@ -29,36 +29,37 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'monitor',
     },
-    adminUser: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Admin'
-    },
+    monitoringRequests: [{
+        adminId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Admin'
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'accepted', 'rejected'],
+            default: 'pending'
+        }
+    }]
 });
 
-userSchema.pre('save', function(next) {
-  let user = this;
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
 
-  if (!user.isModified('password')) return next();
-
-  bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
-      if (err) return next(err); // Manejo de error mejorado
-
-      bcrypt.hash(user.password, salt, function(err, hash) {
-          if (err) return next(err); // Manejo de error mejorado
-
-          user.password = hash;
-          next();
-      });
-  });
+    try {
+        const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (err) {
+        next(err);
+    }
 });
+
 
 
 // Método para comparar contraseñas (útil para autenticación)
-userSchema.methods.comparePassword = function(candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
-      if (err) return cb(err);
-      cb(null, isMatch);
-    });
-  };
+userSchema.methods.comparePassword = function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
+
 
 module.exports = mongoose.model('User', userSchema);

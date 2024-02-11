@@ -1,4 +1,5 @@
 const Admin = require('../model/admin.model.js'); // Asegúrate de que el nombre del archivo y la ruta sean correctos
+const User = require('../model/user.model.js'); // Asegúrate de que la ruta sea correcta
 const { authenticate } = require('../utils/auth.utils');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // Define saltRounds aquí
@@ -110,6 +111,93 @@ const getAdminById = async (req, res) => {
   }
 };
 
+const addUserForAdmin = async (req, res) => {
+  try {
+    const { userId } = req.body; // Asume que recibes el ID del usuario existente como parte del cuerpo de la solicitud
+    const adminId = req.params.adminId; // Asume que recibes el ID del admin como parte de la URL
+
+    // Verificar si el usuario existe
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('Usuario no encontrado.');
+    }
+
+    // Opcional: Verificar si el administrador existe
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).send('Administrador no encontrado.');
+    }
+
+    // Verificar si el usuario ya está asociado con este administrador
+    const isUserAlreadyMonitored = admin.monitoredUsers.some((monitoredUserId) => monitoredUserId.equals(user._id));
+    if (isUserAlreadyMonitored) {
+      return res.status(400).send('Este usuario ya está asociado con el administrador.');
+    }
+
+    // Asociar el usuario existente con el administrador
+    admin.monitoredUsers.push(user._id);
+    await admin.save();
+
+    res.status(200).json({ message: 'Usuario asociado exitosamente con el administrador', admin });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al asociar el usuario con el administrador.');
+  }
+};
+
+const sendMonitoringRequest = async (req, res) => {
+  const { userId } = req.params;
+    const adminId = req.user._id; // Asume que la autenticación está manejada y el ID del admin está disponible
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('Usuario no encontrado.');
+        }
+
+        // Verificar duplicados
+        const isAlreadyRequested = user.monitoringRequests.some(request => request.adminId.equals(adminId));
+        if (isAlreadyRequested) {
+            return res.status(400).send('La solicitud ya fue enviada.');
+        }
+
+        user.monitoringRequests.push({ adminId, status: 'pending' });
+        await user.save();
+
+        res.status(200).send('Solicitud de monitoreo enviada.');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al enviar la solicitud de monitoreo.');
+    }
+};
+
+const removeUser = async (req, res) => {
+  const { userId } = req.params;
+    const adminId = req.user._id; // Asume autenticación y que tienes el ID del admin
+
+    try {
+        const admin = await Admin.findById(adminId);
+        if (!admin) {
+            return res.status(404).send('Administrador no encontrado.');
+        }
+
+        // Eliminar al usuario de la lista de monitoredUsers
+        admin.monitoredUsers.pull(userId); // Mongoose proporciona el método pull para eliminar por ObjectId
+        await admin.save();
+
+        // Opcionalmente, eliminar la referencia del admin en el User
+        const user = await User.findById(userId);
+        if (user && user.adminUser.equals(adminId)) {
+            user.adminUser = null; // o undefined, dependiendo de cómo quieras manejarlo
+            await user.save();
+        }
+
+        res.status(200).json({ message: 'Usuario eliminado de monitoredUsers' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al eliminar el usuario.');
+    }
+};
 
 
 module.exports = {
@@ -118,5 +206,8 @@ module.exports = {
   getAdmins,
   getAdminById,
   updateAdmin,
-  deleteAdmin
+  deleteAdmin,
+  addUserForAdmin,
+  sendMonitoringRequest,
+  removeUser
 };

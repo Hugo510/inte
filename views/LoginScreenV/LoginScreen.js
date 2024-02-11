@@ -13,7 +13,7 @@ const LoginScreen = ({ navigation }) => {
 
 
     const handleLogin = async () => {
-        const endpoint = isAdmin ? 'http://localhost:3000/api/admins/login' : 'http://localhost:3000/api/users/login';
+        const endpoint = isAdmin ? 'http://192.168.1.26:3000/api/admins/login' : 'http://localhost:3000/api/users/login';
         
         try {
             const response = await fetch(endpoint, {
@@ -27,8 +27,8 @@ const LoginScreen = ({ navigation }) => {
                 }),
             });
   
-            const json = await response.json();
-            if (response.ok) {
+            if (response.ok && response.headers.get('Content-Type')?.includes('application/json')) {
+                const json = await response.json();
                 console.log('Login exitoso:', json);
                 await AsyncStorage.setItem('userToken', json.token);
                 await AsyncStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
@@ -40,10 +40,14 @@ const LoginScreen = ({ navigation }) => {
                     navigation.navigate('UserDashboard'); // Asume que tienes una pantalla para usuarios
                 }
             } else {
-                Alert.alert('Error', json.message || 'Ocurrió un error al intentar iniciar sesión');
+                // Si la respuesta no es JSON, obtén el texto de la respuesta para mostrar un mensaje de error más genérico.
+                const errorMessage = await response.text(); // Cambia a text() para evitar errores de JSON parse
+                Alert.alert('Error', errorMessage || 'Ocurrió un error al intentar iniciar sesión');
             }
         } catch (error) {
             console.error(error);
+            // Aquí puedes manejar errores de red o de parseo JSON
+            Alert.alert('Error', 'No se pudo completar la solicitud. Por favor, verifica tu conexión y vuelve a intentarlo.');
         }
       };
 

@@ -1,5 +1,6 @@
 const Admin = require('../model/admin.model.js'); // Asegúrate de que el nombre del archivo y la ruta sean correctos
 const User = require('../model/user.model.js'); // Asegúrate de que la ruta sea correcta
+const Device = require('../model/device.model.js'); 
 const { authenticate } = require('../utils/auth.utils');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // Define saltRounds aquí
@@ -111,6 +112,7 @@ const getAdminById = async (req, res) => {
   }
 };
 
+//--------------------------------------------------------------------------------------------------Admnis
 const addUserForAdmin = async (req, res) => {
   try {
     const { userId } = req.body; // Asume que recibes el ID del usuario existente como parte del cuerpo de la solicitud
@@ -146,30 +148,34 @@ const addUserForAdmin = async (req, res) => {
 };
 
 const sendMonitoringRequest = async (req, res) => {
-  const { userId } = req.params;
-    const adminId = req.user._id; // Asume que la autenticación está manejada y el ID del admin está disponible
+  const { userId } = req.body; // ID del usuario al que se envía la solicitud
+  const adminId = req.user._id; // Asume que se verifica la autenticación y se obtiene el ID del admin
 
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).send('Usuario no encontrado.');
-        }
+  try {
+      const userExists = await User.exists({ _id: userId });
+      if (!userExists) {
+          return res.status(404).send('Usuario no encontrado.');
+      }
 
-        // Verificar duplicados
-        const isAlreadyRequested = user.monitoringRequests.some(request => request.adminId.equals(adminId));
-        if (isAlreadyRequested) {
-            return res.status(400).send('La solicitud ya fue enviada.');
-        }
+      // Añadir la solicitud de monitoreo al admin
+      const admin = await Admin.findById(adminId);
+      const alreadyRequested = admin.sentMonitoringRequests.some(request => request.userId.equals(userId));
+      
+      if (alreadyRequested) {
+          return res.status(400).send('La solicitud ya fue enviada a este usuario.');
+      }
 
-        user.monitoringRequests.push({ adminId, status: 'pending' });
-        await user.save();
+      admin.sentMonitoringRequests.push({ userId, status: 'pending' });
+      await admin.save();
 
-        res.status(200).send('Solicitud de monitoreo enviada.');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error al enviar la solicitud de monitoreo.');
-    }
+      res.status(200).send('Solicitud de monitoreo enviada correctamente.');
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al enviar la solicitud de monitoreo.');
+  }
 };
+
+
 
 const removeUser = async (req, res) => {
   const { userId } = req.params;
@@ -199,6 +205,87 @@ const removeUser = async (req, res) => {
     }
 };
 
+//-------------------------------------------------------------------------------------------------------------------Admins-Users
+
+const addDevice = async (req, res) => {
+  const { adminId } = req.user; // Asume que el ID del admin está disponible en req.user
+  const deviceDetails = req.body;
+
+  try {
+      const newDevice = new Device({
+          ...deviceDetails,
+          adminUser: adminId,
+      });
+      const savedDevice = await newDevice.save();
+      res.status(201).json(savedDevice);
+  } catch (error) {
+      res.status(500).send({ message: 'Error al agregar el dispositivo', error: error.message });
+  }
+};
+
+const deleteDevice = async (req, res) => {
+  const { deviceId } = req.params;
+
+  try {
+      const device = await Device.findByIdAndDelete(deviceId);
+      if (!device) return res.status(404).send({ message: 'Dispositivo no encontrado' });
+
+      // Opcional: Si los usuarios tienen referencias a este dispositivo, también debes eliminarlas
+      // Por ejemplo, si 'devices' es un campo en User que almacena los ID de dispositivos asignados
+      //await User.updateMany({ devices: deviceId }, { $pull: { devices: deviceId } });
+
+      res.status(200).json({ message: 'Dispositivo eliminado correctamente' });
+  } catch (error) {
+      res.status(500).send({ message: 'Error al eliminar el dispositivo', error: error.message });
+  }
+};
+
+
+
+
+const assignUsersToDevice = async (req, res) => {
+  const { deviceId } = req.params;
+  const { userIds } = req.body; // Lista de IDs de usuarios
+
+  try {
+      const device = await Device.findById(deviceId);
+      if (!device) return res.status(404).send({ message: 'Dispositivo no encontrado' });
+
+      userIds.forEach(userId => {
+          if (!device.monitoredUsers.includes(userId)) {
+              device.monitoredUsers.push(userId);
+          }
+      });
+
+      await device.save();
+      res.status(200).json({ message: 'Usuarios asignados correctamente', device });
+  } catch (error) {
+      res.status(500).send({ message: 'Error al asignar usuarios al dispositivo', error: error.message });
+  }
+};
+
+const unassignUsersFromDevice = async (req, res) => {
+  const { deviceId } = req.params;
+  const { userIds } = req.body; // IDs de usuarios a desasignar
+
+  try {
+      const device = await Device.findById(deviceId);
+      if (!device) return res.status(404).send({ message: 'Dispositivo no encontrado' });
+
+      // Eliminar usuarios de la lista monitoredUsers del dispositivo
+      device.monitoredUsers = device.monitoredUsers.filter(userId => !userIds.includes(userId.toString()));
+      await device.save();
+
+      // Opcional: Si User model tiene referencias a Device, elimínalas aquí
+      //await User.updateMany({ _id: { $in: userIds } }, { $pull: { deviceRefs: deviceId } });
+
+      res.status(200).json({ message: 'Usuarios desasignados correctamente', device });
+  } catch (error) {
+      res.status(500).send({ message: 'Error al desasignar usuarios del dispositivo', error: error.message });
+  }
+};
+
+
 
 module.exports = {
   registerAdmin,
@@ -209,5 +296,9 @@ module.exports = {
   deleteAdmin,
   addUserForAdmin,
   sendMonitoringRequest,
-  removeUser
+  removeUser,
+  deleteDevice,
+  addDevice,
+  assignUsersToDevice,
+  unassignUsersFromDevice
 };

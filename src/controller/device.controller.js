@@ -76,6 +76,18 @@ const getDeviceById = async (req, res) => {
     }
 };
 
+//---------------------------------------------------------------------------------------------------------------------Devices
+
+const getDevicesByAdmin = async (req, res) => {
+    const { adminId } = req.user; // Asume autenticación y autorización
+
+    try {
+        const devices = await Device.find({ adminUser: adminId });
+        res.status(200).json(devices);
+    } catch (error) {
+        res.status(500).send({ message: 'Error al obtener dispositivos', error: error.message });
+    }
+};
 
 
 module.exports = {
@@ -83,6 +95,8 @@ module.exports = {
     getDevices,
     updateDevice,
     deleteDevice,
-    getDeviceById
-};
+    getDeviceById,
+    getDevicesByAdmin
+  };
+  
 

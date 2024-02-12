@@ -27,9 +27,21 @@ const adminSchema = new mongoose.Schema({
         type: String,
         default: 'admin',
     },
-    monitoredUsers: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+    sentMonitoringRequests: [{
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'accepted', 'rejected'],
+            default: 'pending'
+        },
+        sentAt: {
+            type: Date,
+            default: Date.now
+        }
     }],
 });
 

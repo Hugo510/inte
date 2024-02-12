@@ -1,6 +1,7 @@
 const User = require('../model/user.model.js');
 const Admin = require('../model/admin.model.js');
 const { authenticate } = require('../utils/auth.utils');
+const Device = require('../model/device.model.js'); 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -94,29 +95,66 @@ const getUsers = async (req, res) => {
 };
 
 const acceptMonitoringRequest = async (req, res) => {
-  const { adminId } = req.params;
-    const userId = req.user._id; // Asume autenticación
+  const { adminId } = req.body; // ID del admin que envió la solicitud
+  const userId = req.user._id; // Asume autenticación del usuario
 
-    try {
-        const user = await User.findById(userId);
-        const requestIndex = user.monitoringRequests.findIndex(request => request.adminId.equals(adminId));
+  try {
+      // Actualizar el estado de la solicitud en el Admin
+      const admin = await Admin.findOneAndUpdate(
+          { "_id": adminId, "sentMonitoringRequests.userId": userId },
+          { "$set": { "sentMonitoringRequests.$.status": 'accepted' } },
+          { new: true }
+      );
 
-        if (requestIndex === -1) {
-            return res.status(404).send('Solicitud no encontrada.');
-        }
+      if (!admin) {
+          return res.status(404).send('Administrador no encontrado o solicitud no existe.');
+      }
 
-        user.monitoringRequests[requestIndex].status = 'accepted';
-        await user.save();
+      // Opcional: Actualizar el modelo de User para reflejar la aceptación, si es necesario
 
-        // Opcional: Actualizar el modelo Admin para reflejar la aceptación
-
-        res.status(200).send('Solicitud aceptada.');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error al aceptar la solicitud.');
-    }
+      res.status(200).send('Solicitud aceptada correctamente.');
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al aceptar la solicitud de monitoreo.');
+  }
 };
 
+
+const rejectMonitoringRequest = async (req, res) => {
+  const { adminId } = req.body; // ID del admin que envió la solicitud
+  const userId = req.user._id; // Asume autenticación del usuario
+
+  try {
+      // Encuentra el admin y actualiza el estado de la solicitud a 'rejected'
+      const admin = await Admin.findOne({
+          _id: adminId,
+          'sentMonitoringRequests.userId': userId
+      });
+
+      if (!admin) {
+          return res.status(404).send('Administrador no encontrado.');
+      }
+
+      // Busca la solicitud específica y actualiza su estado a 'rejected'
+      const requestIndex = admin.sentMonitoringRequests.findIndex(request => request.userId.equals(userId));
+      if (requestIndex === -1) {
+          return res.status(404).send('Solicitud no encontrada.');
+      }
+
+      // Asegurándose de que la solicitud no haya sido previamente aceptada o rechazada
+      if (admin.sentMonitoringRequests[requestIndex].status !== 'pending') {
+          return res.status(400).send('La solicitud ya ha sido procesada.');
+      }
+
+      admin.sentMonitoringRequests[requestIndex].status = 'rejected';
+      await admin.save();
+
+      res.status(200).send('Solicitud de monitoreo rechazada correctamente.');
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al rechazar la solicitud de monitoreo.');
+  }
+};
 const removeAdmin = async (req, res) => {
   const userId = req.user._id; // Asume autenticación y que tienes el ID del usuario
     const { adminId } = req.body; // El ID del admin a eliminar
@@ -144,6 +182,18 @@ const removeAdmin = async (req, res) => {
     }
 };
 
+const getDevicesForUser = async (req, res) => {
+  const { userId } = req.user; // Asume autenticación y autorización
+
+  try {
+      const devices = await Device.find({ monitoredUsers: userId }).populate('adminUser', 'email');
+      res.status(200).json(devices);
+  } catch (error) {
+      res.status(500).send({ message: 'Error al obtener dispositivos para el usuario', error: error.message });
+  }
+};
+
+
 
 module.exports = {
   registerUser,
@@ -152,7 +202,9 @@ module.exports = {
   deleteUser,
   getUserById,
   getUsers,
+  rejectMonitoringRequest,
   acceptMonitoringRequest,
-  removeAdmin
+  removeAdmin,
+  getDevicesForUser
 };
 

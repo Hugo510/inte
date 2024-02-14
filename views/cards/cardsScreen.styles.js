@@ -1,8 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { StatusBar } from 'react-native';
 
-
-// Obtén las dimensiones de la pantalla
 const { width, height } = Dimensions.get('window');
 
 // Define algunos tamaños base que puedes ajustar según tus necesidades
@@ -31,6 +29,8 @@ export default StyleSheet.create({
     color: '#000',
   },
   contentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     flex: 1, // Ocupa el espacio restante después de CategoriesMenu
     // Puedes agregar más estilos según sea necesario
 },

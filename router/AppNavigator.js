@@ -6,6 +6,7 @@ import MQTTComponent from '../views/comunication/comunicationScreen';
 import CardsScreen from '../views/cards/cardsScreen';
 import DashboardScreen from '../views/dashboard/dashboardScreen';
 import ProfileScreen from '../views/profile/profileScreen';
+import GraphicScreen from '../views/graphics/graphicsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Cards" component={CardsScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Graphic" component={GraphicScreen} options={{ headerShown: false }}/>
         {/* Agrega aquí más pantallas si es necesario */}
       </Stack.Navigator>
   );

@@ -31,7 +31,7 @@ const LoginScreen = ({ navigation }) => {
                 const json = await response.json();
                 console.log('Login exitoso:', json);
                 await AsyncStorage.setItem('userToken', json.token);
-                await AsyncStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
+                await AsyncStorage.setItem('userRole', isAdmin ? 'admin' : 'monitor');
                 
                 // Navega a la pantalla correspondiente
                 if (isAdmin) {

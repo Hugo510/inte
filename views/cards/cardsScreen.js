@@ -4,17 +4,62 @@ import { Card } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './cardsScreen.styles';
 import { Client } from 'paho-mqtt';
+import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const categories = ['ALL', 'HUMO', 'INFRAROJO', 'TEMPERATURA', 'CAMARA', 'HUMEDAD'];
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  if (finalStatus !== 'granted') {
+    alert('Failed to get push token for push notification!');
+    return;
+  }
+  token = (await Notifications.getExpoPushTokenAsync()).data;
+  console.log(token);
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  return token;
+}
 
 
 const CardsScreen = ({ navigation }) => {
   const [messages, setMessages] = useState([]); // Estado para un único mensaje
   const [selectedCategory, setSelectedCategory] = useState('ALL'); // Estado para la categoría seleccionada
 
-
   
     useEffect(() => {
+
+      const loadCards = async () => {
+        try {
+          const jsonValue = await AsyncStorage.getItem('@storage_Cards');
+          if (jsonValue != null) {
+            setMessages(JSON.parse(jsonValue));
+          }
+        } catch (e) {
+          console.log('Error al cargar las tarjetas:', e);
+        }
+      };
+  
+      loadCards();
+      registerForPushNotificationsAsync();
+    
+
       const clientId = 'clientId_' + Math.random().toString(16).slice(2, 8);
       const client = new Client('broker.hivemq.com', 8000, clientId);
   
@@ -43,25 +88,50 @@ const CardsScreen = ({ navigation }) => {
       client.onMessageArrived = (message) => {
         console.log('Mensaje recibido:', message.payloadString);
         try {
-          // Extraer la categoría y si es max o min del topic
           const topicParts = message.destinationName.split('/');
-          const category = topicParts[2].toUpperCase(); // Asume que el topic es /hugo/[categoria]/[max|min]
+          const category = topicParts[2].toUpperCase();
           const type = topicParts[3]; // 'max' o 'min'
       
-          // Creando un nuevo mensaje con la información relevante
+          // Determinar el tipo de alerta basado en el contenido del mensaje
+          let alertType;
+          if (message.payloadString.includes("advertencia")) {
+            alertType = "WARNING";
+          } else if (message.payloadString.includes("información")) {
+            alertType = "INFO";
+          }
+          else if (message.payloadString.includes("alerta")){
+            alertType = "ALERT";
+          } else {
+            alertType = "NON";
+          }
+      
           const newMessage = {
             category,
             type,
-            value: message.payloadString, // El único valor recibido en el mensaje
+            value: message.payloadString,
+            alertType, // Agregar el nuevo campo
             id: generateUniqueId()
           };
       
-          // Actualiza el estado de mensajes con el nuevo mensaje
           setMessages(prevMessages => [...prevMessages, newMessage]);
+
+          // Enviar notificación local
+          Notifications.scheduleNotificationAsync({
+            content: {
+              title: alertType, // "ALERT", "WARNING", etc.
+              body: `Tienes una nueva notificacion en la categoría de ${category}.`,
+              data: { data: 'goes here' },
+            },
+            trigger: null, // Esto enviará la notificación de inmediato
+          });
+          
+          
+      
         } catch (error) {
           console.error('Error al procesar el mensaje MQTT:', error);
         }
       };
+      
     
       
       // Función para generar un ID único (puede ser tan simple o complejo como necesites)
@@ -80,7 +150,7 @@ const CardsScreen = ({ navigation }) => {
     
       const filteredMessages = selectedCategory === 'ALL' 
     ? messages 
-    : messages.filter(message => message.type === selectedCategory);
+    : messages.filter(message => message.category === selectedCategory);
 
   return (
     <SafeAreaView style={[styles.safeArea, { marginTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight }]}>
@@ -129,57 +199,43 @@ const CardsScreen = ({ navigation }) => {
     );
 };
 
-
-const OfferCard = ({ type, content, title, description, code }) => {
-  // Determina el tipo de mensaje basado en el contenido
-  const isAlert = content.includes("abajo");
-  const isWarning = content.includes("advertencia");
-  const isInfo = content.includes("información");
-
-  if (isAlert) {
-    // Tarjeta para alertas
-    return (
-      <Card containerStyle={{ backgroundColor: 'red' }}>
-        <Icon name="times-circle" size={50} color="#fff" /> 
-        <Text style={styles.cardDiscount}>{type}</Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Alerta, debajo del nivel</Text>
-      </Card>
-    );
-  } else if (isWarning) {
-    // Tarjeta para advertencias
-    return (
-      <Card containerStyle={{ backgroundColor: 'orange' }}>
-        <Icon name="exclamation-triangle" size={50} color="#fff" />
-        <Text style={styles.cardDiscount}>{type}</Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Advertencia, condición inestable</Text>
-      </Card>
-    );
-  } else if (isInfo) {
-    // Tarjeta para información general
-    return (
-      <Card containerStyle={{ backgroundColor: 'blue' }}>
-        <Icon name="info-circle" size={50} color="#fff" />
-        <Text style={styles.cardDiscount}>{type}</Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Información relevante</Text>
-      </Card>
-    );
+const OfferCard = ({ type, value, alertType }) => {
+  switch (alertType) {
+    case "WARNING":
+      return (
+        <Card containerStyle={{ backgroundColor: 'orange' }}>
+          <Icon name="exclamation-triangle" size={50} color="#fff" />
+          <Text style={styles.cardDiscount}>{type}</Text>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
+        </Card>
+      );
+    case "INFO":
+      return (
+        <Card containerStyle={{ backgroundColor: 'blue' }}>
+          <Icon name="info-circle" size={50} color="#fff" />
+          <Text style={styles.cardDiscount}>{type}</Text>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
+        </Card>
+      );
+    case "ALERT":
+      return (
+        <Card containerStyle={{ backgroundColor: 'red' }}>
+          <Icon name="times-circle" size={50} color="#fff" />
+          <Text style={styles.cardDiscount}>{type}</Text>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
+        </Card>
+      );
+    default:
+      return (
+        <Card containerStyle={{ backgroundColor: 'green' }}>
+          <Icon name="circle" size={50} color="#fff" />
+          <Text style={styles.cardDiscount}>{type}</Text>
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
+        </Card>
+      );
   }
-
-  // Tarjeta general si no se cumplen las condiciones anteriores
-  return (
-    <Card>
-      <Text style={styles.cardDiscount}>{type}</Text>
-      <Text>{title}</Text>
-      <Text style={styles.cardConditions}>{description}</Text>
-      <View style={styles.cardFooter}>
-        <Text>{code}</Text>
-        <TouchableOpacity style={styles.copyButton} onPress={() => {/* Implementa la función de copiado aquí */}}>
-          <Text>COPY CODE</Text>
-        </TouchableOpacity>
-      </View>
-    </Card>
-  );
 };
+
 
 const copyToClipboard = (code) => {
     // Utilizaría el Clipboard API de React Native o algún paquete externo
@@ -195,11 +251,8 @@ const BottomNavBar = () => (
 export default CardsScreen;
 
 
-/* {
-  "type": "TEMPERATURA",
-  "title": "Oferta Especial en Detectores de Humo",
-  "description": "Descuento del 20% en todos los detectores de humo esta semana.",
-  "code": "SMOKE20"
+/* /hugo/humo/max
+{
+  advertencia
 }
-
  */

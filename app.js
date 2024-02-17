@@ -4,8 +4,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './router/AppNavigator';
 import { loadFonts } from './styles/fonts';
 import { View, Text, ActivityIndicator } from 'react-native'; // Importa ActivityIndicator para el indicador de carga
+import registerNNPushToken from 'native-notify';
 
 const App = () => {
+  registerNNPushToken(19648, '7Bg3jBWRTFr6oxFzCBWI0D');
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {

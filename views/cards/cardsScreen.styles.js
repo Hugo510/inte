@@ -1,8 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { StatusBar } from 'react-native';
 
-
-// Obtén las dimensiones de la pantalla
 const { width, height } = Dimensions.get('window');
 
 // Define algunos tamaños base que puedes ajustar según tus necesidades
@@ -30,11 +28,18 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
+  contentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    flex: 1, // Ocupa el espacio restante después de CategoriesMenu
+    // Puedes agregar más estilos según sea necesario
+},
   categoriesContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     paddingVertical: 10,
     backgroundColor: '#f8f8f8',
+    alignItems: 'center', // Ejemplo de estilo
   },
   categoryButton: {
     paddingVertical: 8,
@@ -52,7 +57,7 @@ export default StyleSheet.create({
   cardDiscount: {
     fontSize: fontSizeResponsive * 1.2, // Usa una escala basada en el tamaño base
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#000',
     marginBottom: 5,
   },
   cardConditions: {

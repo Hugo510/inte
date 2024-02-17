@@ -1,11 +1,56 @@
 // views/LoginScreen.js
-import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, TextInput, TouchableOpacity, Alert, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import styles from '../LoginScreenV/LoginScreen.styles'; // Asegúrate de que la ruta sea correcta
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false); // Nuevo estado para manejar el tipo de usuario
+
+
+    const handleLogin = async () => {
+        const endpoint = isAdmin ? 'http://192.168.1.26:3000/api/admins/login' : 'http://localhost:3000/api/users/login';
+        
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
+  
+            if (response.ok && response.headers.get('Content-Type')?.includes('application/json')) {
+                const json = await response.json();
+                console.log('Login exitoso:', json);
+                await AsyncStorage.setItem('userToken', json.token);
+                await AsyncStorage.setItem('userRole', isAdmin ? 'admin' : 'monitor');
+                
+                // Navega a la pantalla correspondiente
+                if (isAdmin) {
+                    navigation.navigate('AdminDashboard');
+                } else {
+                    navigation.navigate('UserDashboard'); // Asume que tienes una pantalla para usuarios
+                }
+            } else {
+                // Si la respuesta no es JSON, obtén el texto de la respuesta para mostrar un mensaje de error más genérico.
+                const errorMessage = await response.text(); // Cambia a text() para evitar errores de JSON parse
+                Alert.alert('Error', errorMessage || 'Ocurrió un error al intentar iniciar sesión');
+            }
+        } catch (error) {
+            console.error(error);
+            // Aquí puedes manejar errores de red o de parseo JSON
+            Alert.alert('Error', 'No se pudo completar la solicitud. Por favor, verifica tu conexión y vuelve a intentarlo.');
+        }
+      };
+
     return (
         <LinearGradient
             colors={['#8EC5FC', '#E0C3FC']}
@@ -23,16 +68,29 @@ const LoginScreen = ({ navigation }) => {
                     placeholder="Email"
                     keyboardType="email-address"
                     placeholderTextColor="#b1b1b1"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
                 />
                 
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
-                    secureTextEntry
                     placeholderTextColor="#b1b1b1"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
                 />
                 
-                <TouchableOpacity style={styles.buttonContainer}>
+                <Switch
+                    value={isAdmin}
+                    onValueChange={(newValue) => setIsAdmin(newValue)}
+                    color="#6200ee"
+                />
+                <Text>{isAdmin ? 'Iniciar sesión como Admin' : 'Iniciar sesión como Usuario'}</Text>
+                
+
+                <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Sign in</Text>
                 </TouchableOpacity>
                 

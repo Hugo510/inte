@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   registerUser,
   loginUser,
+  login,
   updateUser,
   deleteUser,
   getUserById,
@@ -18,7 +19,7 @@ const { protectUser } = require('../middleware/authMiddleware'); // Middleware d
 router.post('/register', registerUser);
 
 // Inicio de sesión de usuario
-router.post('/login', loginUser);
+router.post('/login', login);
 
 // Las siguientes rutas requieren que el usuario esté autenticado
 router.post('/acceptMonitoringRequest/:adminId', protectUser, acceptMonitoringRequest);

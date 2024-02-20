@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { registerAdmin, loginAdmin, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice} = require('../controller/admin.controller');
+const { registerAdmin, loginAdmin, login, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice} = require('../controller/admin.controller');
 const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticación y chequeo de rol
 
 // Registro de administrador
 router.post('/register', registerAdmin);
 
 // Inicio de sesión de administrador
-router.post('/login', loginAdmin);
+router.post('/login', login);
 
 // Asume que tienes autenticación y autorización middleware para proteger esta ruta
 router.post('/admin/:adminId/addUser', protect, addUserForAdmin);

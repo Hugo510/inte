@@ -4,6 +4,12 @@ const Device = require('../model/device.model.js');
 const { authenticate } = require('../utils/auth.utils');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // Define saltRounds aquí
+
+// En admin.controller.js y user.controller.js
+const { login } = require('../utils/auth.utils.js');
+
+// Usar login donde necesites realizar la operación de inicio de sesión.
+
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
@@ -290,6 +296,7 @@ const unassignUsersFromDevice = async (req, res) => {
 module.exports = {
   registerAdmin,
   loginAdmin,
+  login,
   getAdmins,
   getAdminById,
   updateAdmin,

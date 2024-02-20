@@ -89,6 +89,43 @@ const getDevicesByAdmin = async (req, res) => {
     }
 };
 
+const saveDataSensors = async (req, res) => {
+    const { deviceId, sensorType } = req.params;
+    const { timestamp, value } = req.body;
+
+    try {
+        const sensorData = { timestamp, value };
+        const update = {};
+        update[`sensors.${sensorType}.data`] = sensorData;
+
+        const updatedDevice = await Device.findByIdAndUpdate(
+            deviceId,
+            { $push: update },
+            { new: true, safe: true, upsert: true }
+        );
+
+        res.json(updatedDevice);
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+};
+
+const getSensorData = async (req, res) => {
+    const { deviceId, sensorType } = req.params;
+
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).send('Dispositivo no encontrado');
+        }
+
+        const sensorData = device.sensors[sensorType].data;
+        res.json(sensorData);
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+};
+
 
 module.exports = {
     addDevice,
@@ -96,7 +133,9 @@ module.exports = {
     updateDevice,
     deleteDevice,
     getDeviceById,
-    getDevicesByAdmin
+    getDevicesByAdmin,
+    saveDataSensors,
+    getSensorData
   };
   
 

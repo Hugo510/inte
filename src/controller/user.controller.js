@@ -5,6 +5,12 @@ const Device = require('../model/device.model.js');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+// En admin.controller.js y user.controller.js
+const { login } = require('../utils/auth.utils.js');
+
+// Usar login donde necesites realizar la operación de inicio de sesión.
+
+
 const registerUser = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -198,6 +204,7 @@ const getDevicesForUser = async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
+  login,
   updateUser,
   deleteUser,
   getUserById,

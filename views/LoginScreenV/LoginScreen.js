@@ -9,11 +9,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isAdmin, setIsAdmin] = useState(false); // Nuevo estado para manejar el tipo de usuario
-
 
     const handleLogin = async () => {
-        const endpoint = isAdmin ? 'http://192.168.1.26:3000/api/admins/login' : 'http://localhost:3000/api/users/login';
+        const endpoint = 'http://192.168.1.30:3000/api/login'; // Endpoint unificado para login
         
         try {
             const response = await fetch(endpoint, {
@@ -31,25 +29,24 @@ const LoginScreen = ({ navigation }) => {
                 const json = await response.json();
                 console.log('Login exitoso:', json);
                 await AsyncStorage.setItem('userToken', json.token);
-                await AsyncStorage.setItem('userRole', isAdmin ? 'admin' : 'monitor');
+                await AsyncStorage.setItem('userRole', json.role);
+                await AsyncStorage.setItem('userId', json.userId.toString()); // Asegúrate de que es una cadena
                 
-                // Navega a la pantalla correspondiente
-                if (isAdmin) {
-                    navigation.navigate('AdminDashboard');
+                // Navega a la pantalla correspondiente basada en el rol
+                if (json.role === 'admin') {
+                    navigation.navigate('Profile'); // Asume que tienes una pantalla de dashboard para admin
                 } else {
                     navigation.navigate('UserDashboard'); // Asume que tienes una pantalla para usuarios
                 }
             } else {
-                // Si la respuesta no es JSON, obtén el texto de la respuesta para mostrar un mensaje de error más genérico.
-                const errorMessage = await response.text(); // Cambia a text() para evitar errores de JSON parse
+                const errorMessage = await response.text();
                 Alert.alert('Error', errorMessage || 'Ocurrió un error al intentar iniciar sesión');
             }
         } catch (error) {
             console.error(error);
-            // Aquí puedes manejar errores de red o de parseo JSON
             Alert.alert('Error', 'No se pudo completar la solicitud. Por favor, verifica tu conexión y vuelve a intentarlo.');
         }
-      };
+    };
 
     return (
         <LinearGradient
@@ -82,12 +79,12 @@ const LoginScreen = ({ navigation }) => {
                     secureTextEntry
                 />
                 
-                <Switch
+                {/* <Switch
                     value={isAdmin}
                     onValueChange={(newValue) => setIsAdmin(newValue)}
                     color="#6200ee"
                 />
-                <Text>{isAdmin ? 'Iniciar sesión como Admin' : 'Iniciar sesión como Usuario'}</Text>
+                <Text>{isAdmin ? 'Iniciar sesión como Admin' : 'Iniciar sesión como Usuario'}</Text> */}
                 
 
                 <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin}>
@@ -120,3 +117,11 @@ const LoginScreen = ({ navigation }) => {
 };
 
 export default LoginScreen;
+
+/* 
+{
+   "email": "nuevoemail@admin.com",
+   "password": "NuevaContraseña1234"
+}
+
+*/

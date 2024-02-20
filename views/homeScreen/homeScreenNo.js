@@ -57,7 +57,7 @@ const HomeScreenNo = ({ navigation }) => {
           <Text style={styles.heroTitle}>Easy Way to Manage Your Accounting Software</Text>
           <Text style={styles.heroSubtitle}>Accounting is built into all small businesses' operations...</Text>
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('Cards')}>
+            <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.navigate('Login')}>
               <Text style={styles.buttonText}>Log In</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Graphic')} style={styles.demoButton}>

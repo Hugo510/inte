@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const categories = ['ALL', 'HUMO', 'INFRAROJO', 'TEMPERATURA', 'CAMARA', 'HUMEDAD'];
 
-async function registerForPushNotificationsAsync() {
+/* async function registerForPushNotificationsAsync() {
   let token;
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
@@ -35,7 +35,7 @@ async function registerForPushNotificationsAsync() {
   }
 
   return token;
-}
+} */
 
 
 const CardsScreen = ({ navigation }) => {
@@ -57,7 +57,7 @@ const CardsScreen = ({ navigation }) => {
       };
   
       loadCards();
-      registerForPushNotificationsAsync();
+      //registerForPushNotificationsAsync();
     
 
       const clientId = 'clientId_' + Math.random().toString(16).slice(2, 8);
@@ -112,18 +112,9 @@ const CardsScreen = ({ navigation }) => {
             alertType, // Agregar el nuevo campo
             id: generateUniqueId()
           };
-      
-          setMessages(prevMessages => [...prevMessages, newMessage]);
-
-          // Enviar notificación local
-          Notifications.scheduleNotificationAsync({
-            content: {
-              title: alertType, // "ALERT", "WARNING", etc.
-              body: `Tienes una nueva notificacion en la categoría de ${category}.`,
-              data: { data: 'goes here' },
-            },
-            trigger: null, // Esto enviará la notificación de inmediato
-          });
+          
+          handleNewMessage(newMessage); // Aquí se llama a la función
+          //setMessages(prevMessages => [...prevMessages, newMessage]);
           
           
       
@@ -132,12 +123,27 @@ const CardsScreen = ({ navigation }) => {
         }
       };
       
-    
+      
       
       // Función para generar un ID único (puede ser tan simple o complejo como necesites)
       function generateUniqueId() {
         return Math.random().toString(36).slice(2, 9);
       }
+
+      const handleNewMessage = (newMessage) => {
+            // Suponiendo que esta función se llama cada vez que llega un nuevo mensaje
+            setMessages(prevMessages => [...prevMessages, newMessage]);
+          
+            // Lanza una notificación local para el nuevo mensaje
+            Notifications.scheduleNotificationAsync({
+              content: {
+                title: alertType, // "ALERT", "WARNING", etc.
+                body: `Tienes una nueva notificacion en la categoría de ${category}.`,
+                data: { data: 'goes here' },
+              },
+              trigger: null, // Esto enviará la notificación de inmediato
+            });
+          };
   
       client.connect(options);
   

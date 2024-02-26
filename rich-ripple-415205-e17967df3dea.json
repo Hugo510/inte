@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "rich-ripple-415205",
+  "private_key_id": "e17967df3dea0b1820dc4837b3aadfa4a3deab46",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCHaR2YdwzY0mYx\nGIsg+xvcDoV6gMcaVUszCDnrmlbOF1YaFVg7bTLz5afqIKiY53nmfs+Pi3DJTaMJ\n6CtSfcxHw6qcKhkwqi1SMpgZzxzboWKrj07+psP+doVjr7sWY74h2Vm3kj712Szs\nIztbebw/i+oH0o7e7VfLIHngq1W50FpRgkjZ3uHg2jk4EhX1+J23yUQIbrjEsUDr\ns+S0u9gqfTKFYq7hlFiryXiMOpWLPSKzhyj6Or+MVBuMwCK89fn/TUl4zwRoHH44\nmYNVvH3I4mb5uJ96pL8x9PHFyFrnv6nakv8XDJBI9nbpRXoDyM7bJerWVIIMkFTl\ndbskFA5DAgMBAAECggEABG3INYXjSi4rgHyUhFoiMaLZ88VFfdN/V6ZzuoR8RVZX\nDxhWn+705SxEPzCdQw8DGipYoJHHeRYMeJT64cJSjaBVMrFfzIssW01jUyjGgVp4\nbzMLOuH6dBatSzLitBtECzhgKlRiscjOItUOKnJDWXK6j1HwMVNi9TZVNid0cNTX\nCXZW4LhNh4aU779AbUtVy0j5zgxIMx6aae99nfUGCuU9C54X7It4Z3Ow8oFpL7H9\n35519mRmf0aXzOZR0Rg0K9IQpoEs7KGrZjphX/k+toXLjpteM0bfYtNGWdH42V6G\ngt9lKhI1tUIovIgKuJ/JzQ4Ifl5rWDmMY6QlJLnLgQKBgQC7SqeHtKL63PRtUfUu\n9OC8StCf5Jb9FFca4cS62aDxs2ir09/NVjNQNzAe9L8cVuTGRgaor1nGnpxPR+dm\nA7LIlx6cKuRslvNOwNByeWYWo8jUv7Z7Ns4jT6OAHqlK8pyqdz8NbytNDOk4S6ES\nElstm0ny5NwwEULBCQsraubkgQKBgQC5FhjCGAPrVdBc99Nufjm6iV0SXzCAGsnf\nRXteeK1h2Mz+f+5N2glvxb2rQkkM/MnfMPhmZMCAGm8de5dh92x7/RWZlwdiZRCU\nOFWQXtxxFd8ZrEC/Fvu7gnSnrxWqsvyssb7UhMhEq+oh7fxleZQJLErascOYjE4K\nrArsTDQAwwKBgCv/qcOzp+YPKkzUSCkz1efmG4S0itQBh0UFbNYIckrVvu0+5QC0\nE3HwxRlAnfTmZPA/WykdqJWEhWwKlE3e6I0/Ey3U1by86YPCwDVkV5tR9sgkEZZ4\nlYyuFNbwXQ0CWdOiF+nsB9weAFv9SGWaclkQdhrdsOyJ4Yi/uyQEBSIBAoGAEkRA\nBUfheyRpAAPldg43HFXaPanvW3VJXyO4XUaDthhzgtqVZlGShNl7Mp/EHegE9GYc\n3d4rsXjqZnqAIkcNCd+cdiAVtnxK+pXku+7gyrhh4GLDsRhPl930LWh2NvabQV/5\neXfxW/WrkdWvB0TMe2tHp/XLXA7c1OjN2yxaJYkCgYBzdo7vMSPuqAwfkI4CYwuP\n263lLQX4WPmEMIQ8ayDjhA6CiUgqOYadQW0PoXc379femi2rKbRzsdx+BvFXuxst\nypyKIeisROQ4l5/3F3PL4Ij+YdWeAJY6Ef6eJscOotlPv0wT9yfhXpKfCNf52MzD\nM0pb6oQM0NbNCk64lFJiyQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "airguard@rich-ripple-415205.iam.gserviceaccount.com",
+  "client_id": "109650305494212859987",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/airguard%40rich-ripple-415205.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

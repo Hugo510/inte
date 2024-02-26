@@ -4,7 +4,7 @@ import { Feather, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@ex
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import styles from './profileScreen.styles';
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
 
         const [userData, setUserData] = useState(null);
         const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ const ProfileScreen = () => {
                   return;
               }
         
-              const endpoint = `http://192.168.1.30:3000/api/admins/${userId}`; // Construye el endpoint con el userId
+              const endpoint = `http://192.168.1.2:3000/api/admins/${userId}`; // Construye el endpoint con el userId
 
               try {
                 const response = await fetch(endpoint, {
@@ -74,9 +74,9 @@ const ProfileScreen = () => {
             <View style={styles.profileContainer}>
               <Image source={require('../../assets/images/yo.jpg' )} style={styles.profilePic} />
               <Text style={styles.profileName}>{userData.name}</Text>
-              <TouchableOpacity style={styles.followButton}>
+              <TouchableOpacity style={styles.followButton} onPress={() => navigation.navigate('Graphic')}>
                 <FontAwesome name="plus" size={14} color="white" />
-                <Text style={styles.followButtonText}>Añadir Monitor</Text>
+                <Text style={styles.followButtonText}>Añadir Dispositivo</Text>
               </TouchableOpacity>
               <Text style={styles.contactInfo}>{userData.age}</Text>
               <Text style={styles.contactInfo}>{userData.email}</Text>
@@ -84,7 +84,7 @@ const ProfileScreen = () => {
             <View style={styles.statsContainer}>
               <View style={styles.statBox}>
                 <Text style={styles.statNumber}>{userData.role}</Text>
-                <Text style={styles.statLabel}>Design posted</Text>
+                <Text style={styles.statLabel}>Rol</Text>
               </View>
               <View style={styles.statBox}>
                 <Text style={styles.statNumber}>{userData.email}</Text>
@@ -92,30 +92,63 @@ const ProfileScreen = () => {
               </View>
             </View>
             <View style={styles.balanceContainer}>
-              <Text style={styles.balanceAmount}>${userData.monitoredUsers}</Text>
-              <Text style={styles.balanceOrders}>{userData.monitoredUsers} Orders</Text>
+              <Text style={styles.balanceAmount}>Monitores #: {userData.sentMonitoringRequests.length}</Text>
+              <Text style={styles.balanceOrders}>Pendientes: {userData.sentMonitoringRequests.filter(request => request.status === 'pending').length}</Text>
             </View>
             <View style={styles.menuContainer}>
-              <MenuItem icon="heart" text="Your Favorites" />
-              <MenuItem icon="credit-card" text="Payment" />
-              <MenuItem icon="gift" text="Referral Code" />
-              <MenuItem icon="tag" text="Promotions" />
-              <MenuItem icon="cog" text="Settings" />
+              <MenuItem
+                icon="heart"
+                text="Graficas"
+                onPress={() => navigation.navigate('Graphic')} // Asegúrate de que 'FavoritesScreen' sea una ruta válida en tu configurador de navegación
+              />
+              <MenuItem
+                icon="credit-card"
+                text="Ajustar"
+                onPress={() => navigation.navigate('Dashboard')}
+              />
+              <MenuItem
+                icon="gift"
+                text="Cards"
+                onPress={() => navigation.navigate('Cards')}
+              />
+              <MenuItem
+                icon="edit"
+                text="Editar Perfil"
+                onPress={() => navigation.navigate('Api')}
+              />
+              <MenuItem
+                icon="star"
+                text="Gestionar monitores"
+                onPress={() => navigation.navigate('SettingsScreen')}
+              />
+              <MenuItem
+                icon="cog"
+                text="Settings"
+                onPress={() => navigation.navigate('SettingsScreen')}
+              />
             </View>
-            <TouchableOpacity style={styles.logoutContainer}>
+            <TouchableOpacity
+              style={styles.logoutContainer}
+              onPress={async () => {
+                await AsyncStorage.removeItem('userToken');
+                // Otras acciones de limpieza de estado aquí si es necesario
+                navigation.navigate('LoginScreen'); // Asegúrate de que 'LoginScreen' sea una ruta válida
+              }}
+            >
               <MaterialIcons name="logout" size={24} color="red" />
               <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
+
           </ScrollView>
         </SafeAreaView>
       );
     };
     
-    const MenuItem = ({ icon, text }) => (
-      <TouchableOpacity style={styles.menuItem}>
+    const MenuItem = ({ icon, text, onPress }) => (
+      <TouchableOpacity style={styles.menuItem} onPress={onPress}>
         <FontAwesome name={icon} size={24} color="black" />
         <Text style={styles.menuText}>{text}</Text>
       </TouchableOpacity>
-    );
+    );    
 
 export default ProfileScreen;

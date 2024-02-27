@@ -19,7 +19,7 @@ const ProfileScreen = ({ navigation }) => {
                   return;
               }
         
-              const endpoint = `http://192.168.1.2:3000/api/admins/${userId}`; // Construye el endpoint con el userId
+              const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`; // Construye el endpoint con el userId
 
               try {
                 const response = await fetch(endpoint, {

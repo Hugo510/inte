@@ -182,64 +182,51 @@ const CardsScreen = ({ navigation }) => {
   
 
 
-  const CategoriesMenu = ({ categories, selectedCategory, onSelectCategory }) => {
-    return (
-        <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesContainer} // Estilos de layout aquí
-        >
-            {categories.map((category) => (
-                <TouchableOpacity
-                    key={category}
-                    style={[
-                        styles.categoryButton,
-                        selectedCategory === category && styles.categoryButtonSelected,
-                    ]}
-                    onPress={() => onSelectCategory(category)}
-                >
-                    <Text style={styles.categoryButtonText}>{category}</Text>
-                </TouchableOpacity>
-            ))}
-        </ScrollView>
-    );
+  // Mejoras en CategoriesMenu para mejorar la legibilidad y la experiencia de usuario
+const CategoriesMenu = ({ categories, selectedCategory, onSelectCategory }) => (
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={styles.categoriesContainer}
+  >
+    {categories.map((category) => (
+      <TouchableOpacity
+        key={category}
+        style={[
+          styles.categoryButton,
+          selectedCategory === category && styles.categoryButtonSelected,
+        ]}
+        onPress={() => onSelectCategory(category)}
+      >
+        <Text style={styles.categoryButtonText}>{category}</Text>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+);
+
+const getAlertStyles = (alertType) => {
+  switch (alertType) {
+      case "WARNING":
+          return { backgroundColor: 'orange', icon: 'exclamation-triangle' };
+      case "INFO":
+          return { backgroundColor: 'blue', icon: 'info-circle' };
+      case "ALERT":
+          return { backgroundColor: 'red', icon: 'times-circle' };
+      default:
+          return { backgroundColor: 'green', icon: 'circle' };
+  }
 };
 
 const OfferCard = ({ type, value, alertType }) => {
-  switch (alertType) {
-    case "WARNING":
-      return (
-        <Card containerStyle={{ backgroundColor: 'orange' }}>
-          <Icon name="exclamation-triangle" size={50} color="#fff" />
-          <Text style={styles.cardDiscount}>{type}</Text>
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
-        </Card>
-      );
-    case "INFO":
-      return (
-        <Card containerStyle={{ backgroundColor: 'blue' }}>
-          <Icon name="info-circle" size={50} color="#fff" />
-          <Text style={styles.cardDiscount}>{type}</Text>
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
-        </Card>
-      );
-    case "ALERT":
-      return (
-        <Card containerStyle={{ backgroundColor: 'red' }}>
-          <Icon name="times-circle" size={50} color="#fff" />
-          <Text style={styles.cardDiscount}>{type}</Text>
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
-        </Card>
-      );
-    default:
-      return (
-        <Card containerStyle={{ backgroundColor: 'green' }}>
-          <Icon name="circle" size={50} color="#fff" />
-          <Text style={styles.cardDiscount}>{type}</Text>
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>{value}</Text>
-        </Card>
-      );
-  }
+  const { backgroundColor, icon } = getAlertStyles(alertType);
+
+  return (
+      <Card containerStyle={[styles.cardContainer, { backgroundColor }]}>
+          <Icon name={icon} size={50} color="#fff" />
+          <Text style={styles.cardType}>{type}</Text>
+          <Text style={styles.cardValue}>{value}</Text>
+      </Card>
+  );
 };
 
 

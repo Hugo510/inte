@@ -13,6 +13,16 @@ const LoginScreen = ({ navigation }) => {
     const togglePasswordVisibility = () => setPasswordVisibility(!passwordVisibility);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const isValidEmail = (email) => {
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@"]+\.)+[^<>()[\]\\.,;:\s@"]{2,})$/i;
+        return re.test(String(email).toLowerCase());
+      };
+      
+      const isValidPassword = (password) => {
+        // Ejemplo: Validar que la contraseña tenga al menos 8 caracteres
+        return password.length >= 8;
+      };
+
     const handleLogin = async () => {
         const endpoint = `http://${global.ipDireccion}:3000/api/login`; // Endpoint unificado para login
         
@@ -49,6 +59,11 @@ const LoginScreen = ({ navigation }) => {
             console.error(error);
             Alert.alert('Error', 'No se pudo completar la solicitud. Por favor, verifica tu conexión y vuelve a intentarlo.');
         }
+
+        if (!isValidEmail(email) || !isValidPassword(password)) {
+            Alert.alert('Error', 'Por favor, ingresa un correo electrónico y contraseña válidos.');
+            return;
+          }
     };
 
     return (
@@ -79,14 +94,21 @@ const LoginScreen = ({ navigation }) => {
                         onChangeText={setPassword}
                         secureTextEntry={passwordVisibility}
                     />
-                    <TouchableOpacity onPress={() => setPasswordVisibility(!passwordVisibility)} style={styles.visibilityToggle}>
-                        <Icon name={passwordVisibility ? "visibility-off" : "visibility"} size={20} color="#6e6e6e" />
+                    <TouchableOpacity onPress={togglePasswordVisibility} style={styles.visibilityToggle}>
+                        <Icon name={passwordVisibility ? "visibility-off" : "visibility"} size={24} color="#6e6e6e" />
+    {/*                 // Agrega un texto de tooltip si es posible, o simplemente asegúrate de que el propósito del botón sea claro. */}
                     </TouchableOpacity>
+
 
                     <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin} disabled={isSubmitting}>
                         <Text style={styles.buttonText}>Sign in</Text>
                     </TouchableOpacity>
-                    {isSubmitting && <ActivityIndicator size="small" color="#0000ff" />}
+                    {isSubmitting && (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                        <Text>Cargando...</Text>
+                    </View>
+                    )}
                     
                     <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 </View>

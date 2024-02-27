@@ -24,7 +24,15 @@ const deviceSchema = new mongoose.Schema({
         temperature: {
             parameters: Object
         }
-    }
+    },
+    graphicScreenMessages: [{
+        timestamp: { type: Date, default: Date.now },
+        message: String,
+        messageType: {
+            type: String,
+            enum: ['tipo1', 'tipo2'], // Ejemplo de tipos, ajusta según necesidad
+        }
+    }]
 });
 
 module.exports = mongoose.model('Device', deviceSchema);

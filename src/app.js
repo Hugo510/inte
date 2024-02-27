@@ -6,7 +6,6 @@ const userRoutes = require('./routes/user.route');
 const adminRoutes = require('./routes/admin.route');
 const deviceRoutes = require('./routes/device.route');
 const { login } = require('./utils/auth.utils.js');
-const uploadController = require('../controller/upload.controller');
 
 const app = express();
 

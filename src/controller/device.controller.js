@@ -126,6 +126,41 @@ const getSensorData = async (req, res) => {
     }
 };
 
+const saveGraphicScreenMessage = async (req, res) => {
+    const { deviceId, message, messageType } = req.body;
+
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).send('Device not found');
+        }
+
+        device.graphicScreenMessages.push({ message, messageType });
+        await device.save();
+        res.status(200).json({ message: 'Graphic screen message saved successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error saving graphic screen message');
+    }
+};
+
+const loadGraphicScreenMessages = async (req, res) => {
+    const { deviceId } = req.params;
+
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).send('Device not found');
+        }
+
+        res.status(200).json(device.graphicScreenMessages);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error loading graphic screen messages');
+    }
+};
+
+
 
 module.exports = {
     addDevice,
@@ -135,7 +170,9 @@ module.exports = {
     getDeviceById,
     getDevicesByAdmin,
     saveDataSensors,
-    getSensorData
+    getSensorData,
+    saveGraphicScreenMessage,
+    loadGraphicScreenMessages
   };
   
 

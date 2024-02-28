@@ -30,7 +30,7 @@ router.post('/removeAdmin', protectUser, removeAdmin);
 router.post('/rejectMonitoringRequest/:adminId', protectUser, rejectMonitoringRequest);
 
 // Obtener todos los usuarios
-router.get('/', protectUser, getUsers); // Depende de si quieres que solo usuarios autenticados puedan ver todos los usuarios
+router.get('/', getUsers); // Depende de si quieres que solo usuarios autenticados puedan ver todos los usuarios
 
 // Obtener un usuario por ID
 router.get('/:id', protectUser, getUserById);

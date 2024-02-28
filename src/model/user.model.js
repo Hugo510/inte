@@ -3,6 +3,16 @@ const bcrypt = require('bcrypt');
 const SALT_WORK_FACTOR = 10;
 
 const userSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+        trim: true // Elimina los espacios al inicio y al final
+    },
+    lastName: {
+        type: String,
+        required: true,
+        trim: true // Elimina los espacios al inicio y al final
+    },
     email: {
         type: String,
         required: true,
@@ -39,9 +49,14 @@ const userSchema = new mongoose.Schema({
             enum: ['pending', 'accepted', 'rejected'],
             default: 'pending'
         }
-    }]
+    }],
+    fcmToken: {
+        type: String,
+        required: false // this can be optional because not every user may have a token initially
+    }
 });
 
+// Pre-save hook para encriptar la contraseña antes de guardar el usuario
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
 
@@ -54,12 +69,9 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-
-
 // Método para comparar contraseñas (útil para autenticación)
 userSchema.methods.comparePassword = function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
-
 
 module.exports = mongoose.model('User', userSchema);

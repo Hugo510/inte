@@ -15,14 +15,41 @@ const deviceSchema = new mongoose.Schema({
         required: true
     },
     sensors: {
-        smokeDetector: {
-            parameters: Object
+        gasDetector: {
+            parameters: Object,
+            alerts: [{
+                timestamp: { type: Date, default: Date.now },
+                message: String,
+                messageType: {
+                    type: String,
+                    enum: ['Alerta', 'Advertencia', 'Error'], // Ajusta según tus necesidades
+                }
+                // Agrega más campos si es necesario
+            }]
         },
-        infrared: {
-            parameters: Object
+        ultrasonic: {
+            parameters: Object,
+            alerts: [{
+                timestamp: { type: Date, default: Date.now },
+                message: String,
+                messageType: {
+                    type: String,
+                    enum: ['Alerta', 'Advertencia', 'Error'], // Ajusta según tus necesidades
+                }
+                // Agrega más campos si es necesario
+            }]
         },
         temperature: {
-            parameters: Object
+            parameters: Object,
+            alerts: [{
+                timestamp: { type: Date, default: Date.now },
+                message: String,
+                messageType: {
+                    type: String,
+                    enum: ['Alerta', 'Advertencia', 'Error'], // Ajusta según tus necesidades
+                }
+                // Agrega más campos si es necesario
+            }]
         }
     },
     graphicScreenMessages: [{

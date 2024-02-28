@@ -1,6 +1,16 @@
 const mongoose = require('mongoose');
 
 const adminSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+        trim: true // Elimina los espacios al inicio y al final
+    },
+    lastName: {
+        type: String,
+        required: true,
+        trim: true // Elimina los espacios al inicio y al final
+    },
     email: {
         type: String,
         required: true,
@@ -43,6 +53,10 @@ const adminSchema = new mongoose.Schema({
             default: Date.now
         }
     }],
+    fcmToken: {
+        type: String,
+        required: false // this can be optional because not every user may have a token initially
+    }
 });
 
 module.exports = mongoose.model('Admin', adminSchema);

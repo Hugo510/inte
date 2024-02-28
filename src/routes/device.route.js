@@ -7,43 +7,51 @@ const {
     deleteDevice,
     getDeviceById,
     getDevicesByAdmin,
-    getSensorData,
     saveDataSensors,
-    saveGraphicScreenMessage, // Asegúrate de que estos controladores estén importados
-    loadGraphicScreenMessages
+    getSensorData,
+    saveGraphicScreenMessage,
+    loadGraphicScreenMessages,
+    saveSensorAlert,
+    getSensorAlerts
 } = require('../controller/device.controller');
 
-const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticación y chequeo de rol
+const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticación
 
-// Agregar un dispositivo
-router.post('/', addDevice);
-
-// Guardar datos de sensores
-router.post('/devices/:deviceId/sensors/:sensorType/data', saveDataSensors);
+// Agregar un nuevo dispositivo
+router.post('/', addDevice); // Crea un nuevo dispositivo
 
 // Obtener todos los dispositivos
-router.get('/', getDevices);
+router.get('/', getDevices); // Lista todos los dispositivos
 
-// Obtener un dispositivo por ID
-router.get('/:id', getDeviceById);
+// Obtener un dispositivo específico por ID
+router.get('/:id', getDeviceById); // Muestra los detalles de un dispositivo
+
+// Actualizar un dispositivo específico por ID
+router.put('/:id', updateDevice); // Actualiza los datos de un dispositivo
+
+// Eliminar un dispositivo específico por ID
+router.delete('/:id', deleteDevice); // Elimina un dispositivo
 
 // Obtener dispositivos por administrador
-router.get('/byAdmin', protect, getDevicesByAdmin);
+router.get('/byAdmin', protect, getDevicesByAdmin); // Lista dispositivos asociados a un admin
 
-// Obtener datos de sensores
-router.get('/devices/:deviceId/sensors/:sensorType/data', getSensorData),
+// Guardar datos de sensor para un dispositivo específico
+router.post('/:deviceId/sensors/:sensorType/data', saveDataSensors); // Añade datos de sensores
 
-// Actualizar un dispositivo
-router.put('/:id', updateDevice);
+// Obtener datos de sensor para un dispositivo específico
+router.get('/:deviceId/sensors/:sensorType/data', getSensorData); // Muestra datos de sensores
 
-// Eliminar un dispositivo
-router.delete('/:id', deleteDevice);
+// Guardar un mensaje de pantalla gráfica para un dispositivo específico
+router.post('/:deviceId/graphicScreenMessage', saveGraphicScreenMessage); // Añade un mensaje de pantalla gráfica
 
-// Rutas para manejar mensajes de la pantalla gráfica
-// Guardar un mensaje de pantalla gráfica
-router.post('/devices/:deviceId/graphicScreenMessage', saveGraphicScreenMessage);
+// Cargar mensajes de pantalla gráfica para un dispositivo específico
+router.get('/:deviceId/graphicScreenMessages', loadGraphicScreenMessages); // Lista mensajes de pantalla gráfica
 
-// Cargar mensajes de pantalla gráfica
-router.get('/devices/:deviceId/graphicScreenMessages', loadGraphicScreenMessages);
+// Rutas para manejar alertas de sensores
+// Guardar una alerta de sensor para un dispositivo específico
+router.post('/:deviceId/sensors/:sensorType/alerts', saveSensorAlert); // Añade una alerta de sensor
+
+// Obtener las alertas de un tipo de sensor específico de un dispositivo
+router.get('/:deviceId/sensors/:sensorType/alerts', getSensorAlerts); // Muestra alertas de un tipo de sensor
 
 module.exports = router;

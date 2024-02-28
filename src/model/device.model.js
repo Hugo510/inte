@@ -12,7 +12,7 @@ const alertSchema = new mongoose.Schema({
 
 const gasDetectorSchema = new mongoose.Schema({
     parameters: {
-        type: Object, // Puedes definir este objeto más específicamente según los parámetros que necesites
+    sensitivity: { type: Number, required: true } // Para el gasDetector, como ejemplo
     },
     data: [{
         value: Number,
@@ -23,7 +23,7 @@ const gasDetectorSchema = new mongoose.Schema({
 
 const ultrasonicSchema = new mongoose.Schema({
     parameters: {
-        type: Object, // Especificar según necesidad
+    range: { type: Number, required: true } // Para el gasDetector, como ejemplo
     },
     data: [{
         distance: Number,

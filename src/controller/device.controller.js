@@ -160,6 +160,49 @@ const loadGraphicScreenMessages = async (req, res) => {
     }
 };
 
+const saveSensorAlert = async (req, res) => {
+    const { deviceId, sensorType } = req.params; // sensorType debe ser uno de 'gasDetector', 'ultrasonic', 'temperature'
+    const { timestamp, message, messageType } = req.body;
+
+    try {
+        const alertData = { timestamp, message, messageType };
+        const update = {};
+        update[`sensors.${sensorType}.alerts`] = alertData;
+
+        const updatedDevice = await Device.findByIdAndUpdate(
+            deviceId,
+            { $push: update },
+            { new: true, safe: true, upsert: true }
+        );
+
+        if (!updatedDevice) {
+            return res.status(404).send('Device not found');
+        }
+
+        res.json({ message: 'Sensor alert saved successfully', device: updatedDevice });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error saving sensor alert');
+    }
+};
+
+const getSensorAlerts = async (req, res) => {
+    const { deviceId, sensorType } = req.params; // sensorType debe ser uno de 'gasDetector', 'ultrasonic', 'temperature'
+
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).send('Device not found');
+        }
+
+        const sensorAlerts = device.sensors[sensorType].alerts;
+        res.json(sensorAlerts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error getting sensor alerts');
+    }
+};
+
 
 
 module.exports = {
@@ -172,7 +215,9 @@ module.exports = {
     saveDataSensors,
     getSensorData,
     saveGraphicScreenMessage,
-    loadGraphicScreenMessages
+    loadGraphicScreenMessages,
+    saveSensorAlert,
+    getSensorAlerts
   };
   
 

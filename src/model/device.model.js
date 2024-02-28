@@ -40,7 +40,10 @@ const deviceSchema = new mongoose.Schema({
             }]
         },
         temperature: {
-            parameters: Object,
+            parameters: {
+        max: { type: Number, required: true },
+        min: { type: Number, required: true }
+    },
             alerts: [{
                 timestamp: { type: Date, default: Date.now },
                 message: String,

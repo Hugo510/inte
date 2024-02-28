@@ -5,9 +5,21 @@ import AppNavigator from './router/AppNavigator';
 import { loadFonts } from './styles/fonts';
 import { View, ActivityIndicator, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
+//import firebase from './firebaseConfig'; // Importa la configuración de Firebase
 
 global.ipDireccion = '192.168.1.2';
 
+// Llama a la función de Cloud Functions
+/* const callSendPushNotification = async (data) => {
+  try {
+    const sendPushNotificationFunction = firebase.functions().httpsCallable('sendPushNotification');
+    const response = await sendPushNotificationFunction({ data });
+    console.log(response);
+  } catch (error) {
+    console.error("Error al llamar a la función sendPushNotification:", error);
+  }
+};
+ */
 const App = () => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 

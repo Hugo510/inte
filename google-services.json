@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "212834219839",
+    "project_id": "rich-ripple-415205",
+    "storage_bucket": "rich-ripple-415205.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:212834219839:android:020dce2890c2846916058a",
+        "android_client_info": {
+          "package_name": "com.victor3041.inte"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "212834219839-5cgag09ntilsi1t4jqeoeg8grpapf5rt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.victor3041.inte",
+            "certificate_hash": "58494e4356f21b3a0399b1b279ee563cc684cdca"
+          }
+        },
+        {
+          "client_id": "212834219839-s62dedk38fr2mh7fdhf6mukavum3vjq8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjWWPaKdJJ1kmtdbHxAFmKFpDucpQjOmw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "212834219839-s62dedk38fr2mh7fdhf6mukavum3vjq8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

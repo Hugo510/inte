@@ -29,6 +29,7 @@
     "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "expo-updates": "~0.18.19",
+    "firebase": "^10.8.0",
     "formik": "^2.4.5",
     "jsonwebtoken": "^9.0.2",
     "mqtt": "^5.3.6",

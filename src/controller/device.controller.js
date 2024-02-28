@@ -90,17 +90,14 @@ const getDevicesByAdmin = async (req, res) => {
 };
 
 const saveDataSensors = async (req, res) => {
-    const { deviceId, sensorType } = req.params;
-    const { timestamp, value } = req.body;
+    const { deviceId } = req.params;
+    const { type, value } = req.body; // Se asume que el 'type' del sensor viene en el cuerpo de la petición
 
     try {
-        const sensorData = { timestamp, value };
-        const update = {};
-        update[`sensors.${sensorType}.data`] = sensorData;
-
+        const sensorData = { type, value };
         const updatedDevice = await Device.findByIdAndUpdate(
             deviceId,
-            { $push: update },
+            { $push: { sensorsData: sensorData } },
             { new: true, safe: true, upsert: true }
         );
 
@@ -109,6 +106,7 @@ const saveDataSensors = async (req, res) => {
         res.status(400).send(error.message);
     }
 };
+
 
 const getSensorData = async (req, res) => {
     const { deviceId, sensorType } = req.params;
@@ -119,7 +117,7 @@ const getSensorData = async (req, res) => {
             return res.status(404).send('Dispositivo no encontrado');
         }
 
-        const sensorData = device.sensors[sensorType].data;
+        const sensorData = device.sensorsData.filter(data => data.type === sensorType);
         res.json(sensorData);
     } catch (error) {
         res.status(400).send(error.message);

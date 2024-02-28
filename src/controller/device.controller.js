@@ -1,12 +1,32 @@
 const Device = require('../model/device.model.js'); 
 
 const addDevice = async (req, res) => {
-    const { adminUser, ...deviceData } = req.body;
+    const { adminUser, room, monitoredUsers, sensors, graphicScreenMessages } = req.body;
 
     try {
+        // Crear el nuevo dispositivo con datos detallados para cada sensor
         const newDevice = new Device({
             adminUser,
-            ...deviceData
+            room,
+            monitoredUsers,
+            sensors: {
+                gasDetector: {
+                    parameters: sensors.gasDetector.parameters,
+                    data: sensors.gasDetector.data,
+                    alerts: sensors.gasDetector.alerts,
+                },
+                ultrasonic: {
+                    parameters: sensors.ultrasonic.parameters,
+                    data: sensors.ultrasonic.data,
+                    alerts: sensors.ultrasonic.alerts,
+                },
+                temperature: {
+                    parameters: sensors.temperature.parameters,
+                    data: sensors.temperature.data,
+                    alerts: sensors.temperature.alerts,
+                },
+            },
+            graphicScreenMessages,
         });
 
         const savedDevice = await newDevice.save();
@@ -89,23 +109,25 @@ const getDevicesByAdmin = async (req, res) => {
     }
 };
 
-const saveDataSensors = async (req, res) => {
-    const { deviceId } = req.params;
-    const { type, value } = req.body; // Se asume que el 'type' del sensor viene en el cuerpo de la petición
+const saveSensorData = async (req, res) => {
+    const { deviceId, sensorType } = req.params; // Asegúrate de que 'sensorType' sea uno de los definidos en el modelo
+    const data = req.body; // La data debe incluir el valor y posiblemente el timestamp
 
     try {
-        const sensorData = { type, value };
-        const updatedDevice = await Device.findByIdAndUpdate(
-            deviceId,
-            { $push: { sensorsData: sensorData } },
-            { new: true, safe: true, upsert: true }
-        );
+        const update = { $push: {} };
+        update.$push[`sensors.${sensorType}.data`] = data;
 
-        res.json(updatedDevice);
+        const updatedDevice = await Device.findByIdAndUpdate(deviceId, update, { new: true });
+        if (!updatedDevice) {
+            return res.status(404).send('Device not found');
+        }
+        res.json({ message: 'Sensor data saved successfully', device: updatedDevice });
     } catch (error) {
-        res.status(400).send(error.message);
+        console.error(error);
+        res.status(500).send('Error saving sensor data');
     }
 };
+
 
 
 const getSensorData = async (req, res) => {
@@ -114,15 +136,18 @@ const getSensorData = async (req, res) => {
     try {
         const device = await Device.findById(deviceId);
         if (!device) {
-            return res.status(404).send('Dispositivo no encontrado');
+            return res.status(404).send('Device not found');
         }
 
-        const sensorData = device.sensorsData.filter(data => data.type === sensorType);
+        // Accede directamente a los datos del sensor específico
+        const sensorData = device.sensors[sensorType].data;
         res.json(sensorData);
     } catch (error) {
-        res.status(400).send(error.message);
+        console.error(error);
+        res.status(500).send('Error getting sensor data');
     }
 };
+
 
 const saveGraphicScreenMessage = async (req, res) => {
     const { deviceId, message, messageType } = req.body;

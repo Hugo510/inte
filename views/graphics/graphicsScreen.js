@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, Platform, StatusBar, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Client } from 'paho-mqtt';
-import HighchartsReactNative from '@highcharts/highcharts-react-native';
+import { Bar } from 'react-chartjs-2';
 import styles from './graphicsScreen.styles';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -160,116 +160,70 @@ const GraphicScreen = ({ navigation }) => {
     };
     
 
-      return (
-        <SafeAreaView style={[styles.safeArea, { marginTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight }]}>
-          <Header navigation={navigation} />
-          <CategoriesMenu categories={categories} selectedCategory={selectedCategory} onSelectCategory={handleCategorySelect} />
-          {isLoading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-          ) : (
-            <ScrollView style={styles.container}>
-              {selectedCategory === 'ALL' ? (
-                // Renderiza todos los gráficos para "ALL"
-                Object.keys(graphData).length > 0 ? (
-                  <HighchartsReactNative
-                    styles={{ height: "100%", width: "100%" }}
-                    options={generateChartOptions(graphData)}
-                  />
-                ) : (
-                  <Text>No hay datos disponibles.</Text>
-                )
-              ) : (
-                // Renderiza el gráfico para la categoría seleccionada
-                graphData[selectedCategory] ? (
-                  <HighchartsReactNative
-                    styles={{ height: "100%", width: "100%" }}
-                    options={generateChartOptions({ [selectedCategory]: graphData[selectedCategory] })}
-                  />
-                ) : (
-                  <Text>No hay datos disponibles para {selectedCategory}.</Text>
-                )
-              )}
-            </ScrollView>
-          )}
-        </SafeAreaView>
-      );
-    };
-  
-const RenderCharts = ({ category, graphData }) => {
-  // Cuando la categoría es "ALL", renderizamos gráficos para todas las categorías disponibles en graphData
-  if (category === 'ALL') {
-    const categories = Object.keys(graphData);
-    if (categories.length === 0) {
-      return <Text>No hay datos disponibles.</Text>;
-    }
-
     return (
-      <ScrollView>
-        {categories.map((categoryKey) => (
-          <View key={categoryKey}>
-            <Text style={styles.chartTitle}>{categoryKey}</Text>
-            <RenderSingleChart
-              category={categoryKey}
-              data={graphData[categoryKey]}
-            />
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContainer}>
+          {categories.map((category) => (
+            <TouchableOpacity
+              key={category}
+              style={[styles.categoryButton, selectedCategory === category && styles.categoryButtonSelected]}
+              onPress={() => handleCategorySelect(category)}
+            >
+              <Text style={styles.categoryButtonText}>{category}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <View>
+            {selectedCategory === 'ALL'
+              ? categories.map((category) => {
+                  if (category !== 'ALL' && graphData[category]) {
+                    return <Bar key={category} data={getChartData(category)} />;
+                  }
+                  return null;
+                })
+              : <Bar data={getChartData(selectedCategory)} />}
           </View>
-        ))}
-      </ScrollView>
+        )}
+      </SafeAreaView>
     );
-  } else {
-    // Para una categoría específica, solo mostramos el gráfico correspondiente
-    return <RenderSingleChart category={category} data={graphData[category] || []} />;
-  }
-};
-
-const RenderSingleChart = ({ category, data }) => {
-  if (data.length === 0) {
-    return <Text>No hay datos disponibles para {category}.</Text>;
-  }
-
-  const labels = data.map((_, index) => `${index + 1}`);
-  const chartData = {
-    labels,
-    datasets: [{
-      data,
-      color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
-      strokeWidth: 2,
-    }],
   };
 
-  return (
-    <LineChart
-      data={chartData}
-      width={Dimensions.get('window').width}
-      height={220}
-      yAxisLabel=""
-      yAxisSuffix=""
-      chartConfig={{
-        backgroundColor: "#e26a00",
-        backgroundGradientFrom: "#fb8c00",
-        backgroundGradientTo: "#ffa726",
-        decimalPlaces: 2,
-        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        style: {
-          borderRadius: 16,
-        },
-        propsForDots: {
-          r: "6",
-          strokeWidth: "2",
-          stroke: "#ffa726",
-        },
-      }}
-      bezier
-      style={{
-        marginVertical: 8,
-        borderRadius: 16,
-      }}
-    />
-  );
-};
 
-
+    const getChartData = (category) => {
+      const chartData = {
+        labels: [],
+        datasets: [
+          {
+            label: category,
+            data: [],
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+          },
+        ],
+      };
+  
+      if (category === 'ALL') {
+        Object.keys(graphData).forEach((cat) => {
+          graphData[cat].forEach((dataPoint, index) => {
+            if (!chartData.labels.includes(`Point ${index + 1}`)) {
+              chartData.labels.push(`Point ${index + 1}`);
+            }
+            chartData.datasets[0].data.push(dataPoint);
+          });
+        });
+      } else {
+        graphData[category]?.forEach((dataPoint, index) => {
+          chartData.labels.push(`Point ${index + 1}`);
+          chartData.datasets[0].data.push(dataPoint);
+        });
+      }
+  
+      return chartData;
+    };
   
 /* const OfferCard = ({ type, value, alertType }) => {
   return(

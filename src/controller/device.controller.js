@@ -110,21 +110,25 @@ const getDevicesByAdmin = async (req, res) => {
 };
 
 const saveSensorData = async (req, res) => {
-    const { deviceId, sensorType } = req.params; // Asegúrate de que 'sensorType' sea uno de los definidos en el modelo
-    const data = req.body; // La data debe incluir el valor y posiblemente el timestamp
+    const { deviceId, sensorType } = req.params;
+    const { data } = req.body; // `data` contiene los campos específicos para cada tipo de sensor
 
     try {
-        const update = { $push: {} };
-        update.$push[`sensors.${sensorType}.data`] = data;
+        // Construye la ruta de actualización basada en el tipo de sensor
+        const updatePath = `sensors.${sensorType}.data`;
+        const updatedDevice = await Device.findByIdAndUpdate(
+            deviceId,
+            { $push: { [updatePath]: data } },
+            { new: true }
+        );
 
-        const updatedDevice = await Device.findByIdAndUpdate(deviceId, update, { new: true });
         if (!updatedDevice) {
             return res.status(404).send('Device not found');
         }
-        res.json({ message: 'Sensor data saved successfully', device: updatedDevice });
+        res.json({ message: 'Sensor data updated successfully', device: updatedDevice });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error saving sensor data');
+        res.status(500).send('Error updating sensor data');
     }
 };
 
@@ -184,30 +188,27 @@ const loadGraphicScreenMessages = async (req, res) => {
 };
 
 const saveSensorAlert = async (req, res) => {
-    const { deviceId, sensorType } = req.params; // sensorType debe ser uno de 'gasDetector', 'ultrasonic', 'temperature'
-    const { timestamp, message, messageType } = req.body;
+    const { deviceId, sensorType } = req.params;
+    const { alert } = req.body; // `alert` debe coincidir con la estructura de `alertSchema`
 
     try {
-        const alertData = { timestamp, message, messageType };
-        const update = {};
-        update[`sensors.${sensorType}.alerts`] = alertData;
-
+        const updatePath = `sensors.${sensorType}.alerts`;
         const updatedDevice = await Device.findByIdAndUpdate(
             deviceId,
-            { $push: update },
-            { new: true, safe: true, upsert: true }
+            { $push: { [updatePath]: alert } },
+            { new: true }
         );
 
         if (!updatedDevice) {
             return res.status(404).send('Device not found');
         }
-
         res.json({ message: 'Sensor alert saved successfully', device: updatedDevice });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error saving sensor alert');
     }
 };
+
 
 const getSensorAlerts = async (req, res) => {
     const { deviceId, sensorType } = req.params; // sensorType debe ser uno de 'gasDetector', 'ultrasonic', 'temperature'

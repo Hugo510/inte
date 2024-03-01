@@ -5,9 +5,9 @@ const {
     getDevices,
     updateDevice,
     deleteDevice,
-    getDeviceById,
+    //getDeviceById,
     getDevicesByAdmin,
-    saveDataSensors,
+    saveSensorData,
     getSensorData,
     saveGraphicScreenMessage,
     loadGraphicScreenMessages,
@@ -24,7 +24,7 @@ router.post('/', addDevice); // Crea un nuevo dispositivo
 router.get('/', getDevices); // Lista todos los dispositivos
 
 // Obtener un dispositivo específico por ID
-router.get('/:id', getDeviceById); // Muestra los detalles de un dispositivo
+//router.get('/:id', getDeviceById); // Muestra los detalles de un dispositivo
 
 // Actualizar un dispositivo específico por ID
 router.put('/:id', updateDevice); // Actualiza los datos de un dispositivo
@@ -36,7 +36,7 @@ router.delete('/:id', deleteDevice); // Elimina un dispositivo
 router.get('/byAdmin', protect, getDevicesByAdmin); // Lista dispositivos asociados a un admin
 
 // Guardar datos de sensor para un dispositivo específico
-router.post('/:deviceId/sensors/:sensorType/data', saveDataSensors); // Añade datos de sensores
+router.post('/:deviceId/sensors/:sensorType/data', saveSensorData); // Añade datos de sensores
 
 // Obtener datos de sensor para un dispositivo específico
 router.get('/:deviceId/sensors/:sensorType/data', getSensorData); // Muestra datos de sensores

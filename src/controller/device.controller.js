@@ -99,19 +99,44 @@ const getDeviceById = async (req, res) => {
 //---------------------------------------------------------------------------------------------------------------------Devices
 
 const getDevicesByAdmin = async (req, res) => {
-    const { adminId } = req.user; // Asume autenticación y autorización
+    if (!req.admin) {
+        return res.status(401).json({ message: 'No autorizado' });
+      }
+      const { _id: adminId } = req.admin; // Utiliza el ID del objeto admin adjuntado por el middleware
 
     try {
         const devices = await Device.find({ adminUser: adminId });
+        if (devices.length === 0) {
+            // Si no se encuentran dispositivos, se podría considerar responder con un 404 o un 200 con un mensaje específico.
+            return res.status(404).json({ message: 'No se encontraron dispositivos para este administrador.' });
+        }
         res.status(200).json(devices);
     } catch (error) {
-        res.status(500).send({ message: 'Error al obtener dispositivos', error: error.message });
+        // Manejo de errores específicos de la base de datos
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'ID de administrador inválido.', error: error.message });
+        }
+        
+        // Otro tipo de errores de Mongoose/ MongoDB
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Error de validación.', error: error.message });
+        }
+
+        // Error de conexión a la base de datos
+        if (error.name === 'MongoNetworkError') {
+            return res.status(503).json({ message: 'Problema de conexión con la base de datos.', error: error.message });
+        }
+
+        // Manejo de otros errores no capturados específicamente
+        console.error(`Error al obtener dispositivos: ${error.message}`);
+        res.status(500).json({ message: 'Error interno del servidor al obtener dispositivos.', error: error.message });
     }
 };
 
+
 const saveSensorData = async (req, res) => {
     const { deviceId, sensorType } = req.params;
-    const { data } = req.body; // `data` contiene los campos específicos para cada tipo de sensor
+    const { data } = req.body; // data contiene los campos específicos para cada tipo de sensor
 
     try {
         // Construye la ruta de actualización basada en el tipo de sensor
@@ -140,15 +165,29 @@ const getSensorData = async (req, res) => {
     try {
         const device = await Device.findById(deviceId);
         if (!device) {
-            return res.status(404).send('Device not found');
+            return res.status(404).json({ message: 'Dispositivo no encontrado.' });
+        }
+
+        // Verifica si el tipo de sensor existe en el dispositivo
+        if (!device.sensors[sensorType]) {
+            return res.status(404).json({ message: `Tipo de sensor '${sensorType}' no encontrado en el dispositivo. `});
         }
 
         // Accede directamente a los datos del sensor específico
         const sensorData = device.sensors[sensorType].data;
+        if (!sensorData || sensorData.length === 0) {
+            return res.status(404).json({ message: `Datos para el sensor '${sensorType}' no encontrados. `});
+        }
+
         res.json(sensorData);
     } catch (error) {
+        // Manejo de errores específicos de Mongoose o de la base de datos
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'ID de dispositivo inválido.', error: error.message });
+        }
+
         console.error(error);
-        res.status(500).send('Error getting sensor data');
+        res.status(500).json({ message: 'Error al obtener los datos del sensor.', error: error.message });
     }
 };
 
@@ -189,7 +228,7 @@ const loadGraphicScreenMessages = async (req, res) => {
 
 const saveSensorAlert = async (req, res) => {
     const { deviceId, sensorType } = req.params;
-    const { alert } = req.body; // `alert` debe coincidir con la estructura de `alertSchema`
+    const { alert } = req.body; // alert debe coincidir con la estructura de alertSchema
 
     try {
         const updatePath = `sensors.${sensorType}.alerts`;
@@ -236,12 +275,10 @@ module.exports = {
     deleteDevice,
     getDeviceById,
     getDevicesByAdmin,
-    saveDataSensors,
+    saveSensorData,
     getSensorData,
     saveGraphicScreenMessage,
     loadGraphicScreenMessages,
     saveSensorAlert,
     getSensorAlerts
-  };
-  
-
+  };

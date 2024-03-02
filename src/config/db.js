@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Asegúrate de que esta es la cadena de conexión correcta para tu base de datos MongoDB Atlas
-const MONGO_URL = 'mongodb+srv://victor3041220191:Oq4g0EOjTcEnRoVt@cluster0.usbre0o.mongodb.net/inte?retryWrites=true&w=majority';
+const MONGO_URL = 'mongodb+srv://victor3041220191:WJWRDxOHBt1EPGlY@cluster0.usbre0o.mongodb.net/inte?retryWrites=true&w=majority';
 
 const connectDB = async () => {
     try {

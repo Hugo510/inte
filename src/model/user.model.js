@@ -39,10 +39,19 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'monitor',
     },
-    monitoringRequests: [{
+    devices: [{ // Añadido para listar los dispositivos a los que un usuario está asignado
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Device'
+    }],
+    monitoringRequests: [{ // Actualizado para incluir deviceId
         adminId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Admin'
+        },
+        deviceId: { // Añadido para especificar a qué dispositivo se refiere la solicitud
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Device',
+            required: true
         },
         status: {
             type: String,

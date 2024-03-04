@@ -43,6 +43,11 @@ const adminSchema = new mongoose.Schema({
             ref: 'User',
             required: true
         },
+        deviceId: { // Añadido para especificar a qué dispositivo se refiere la solicitud
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Device',
+            required: true
+        },
         status: {
             type: String,
             enum: ['pending', 'accepted', 'rejected'],

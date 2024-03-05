@@ -84,7 +84,7 @@ const RegisterScreen = ({ navigation }) => {
               isAdmin,
             };
 
-            const endpoint = isAdmin ? `http://${global.ipDireccion}:3000/api/admins/register` : `http://${global.ipDireccion}:3000/api/admins/register`;
+            const endpoint = isAdmin ? `http://${global.ipDireccion}:3000/api/admins/register` : `http://${global.ipDireccion}:3000/api/users/register`;
             try {
               const response = await fetch(endpoint, {
                 method: 'POST',
@@ -164,12 +164,14 @@ const RegisterScreen = ({ navigation }) => {
 
 
                      {/* Checkbox para Administrador */}
-                    <View style={styles.checkboxContainer}>
-                      <Checkbox
-                        status={values.isAdmin ? 'checked' : 'unchecked'}
-                        onPress={() => setFieldValue('isAdmin', !values.isAdmin)}
-                      />
-                    </View>
+                    {/* Actualiza el estado de isAdmin directamente cuando el checkbox es presionado */}
+                  <View style={styles.checkboxContainer}>
+                    <Checkbox
+                      status={isAdmin ? 'checked' : 'unchecked'}
+                      onPress={() => setIsAdmin(!isAdmin)}
+                    />
+                    <Text>Es administrador</Text>
+                  </View>
                   
               <Button
                 onPress={handleSubmit}

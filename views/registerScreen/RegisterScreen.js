@@ -111,15 +111,17 @@ const RegisterScreen = ({ navigation }) => {
             <>
             <Text style={styles.header}>Registro</Text>
               {/* Inputs del formulario */}
-              <TextInput
-                style={[styles.input, touched.email && errors.email ? styles.errorInput : null]}
+               <TextInput
+                style={[
+                  styles.input,
+                  touched.email && errors.email ? styles.errorInput : null,
+                  isAdmin && styles.inputActive
+                ]}
                 placeholder="Email"
                 onChangeText={handleChange('email')}
                 onBlur={handleBlur('email')}
                 value={values.email}
               />
-              {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-
               <TextInput
                 style={[styles.input, touched.password && errors.password ? styles.errorInput : null]}
                 placeholder="Password"
@@ -166,19 +168,18 @@ const RegisterScreen = ({ navigation }) => {
                      {/* Checkbox para Administrador */}
                     {/* Actualiza el estado de isAdmin directamente cuando el checkbox es presionado */}
                   <View style={styles.checkboxContainer}>
-                    <Checkbox
-                      status={isAdmin ? 'checked' : 'unchecked'}
-                      onPress={() => setIsAdmin(!isAdmin)}
-                    />
-                    <Text>Es administrador</Text>
-                  </View>
-                  
+                <Checkbox
+                  status={isAdmin ? 'checked' : 'unchecked'}
+                  onPress={() => setIsAdmin(!isAdmin)}
+                />
+                <Text style={styles.checkboxLabel}>Es administrador</Text>
+              </View>
               <Button
                 onPress={handleSubmit}
                 title={loading ? "Cargando..." : "Registrar"}
                 disabled={loading}
+                color={isAdmin ? "#24A6E4" : "#999999"}
               />
-
             </>
           )}
         </Formik>

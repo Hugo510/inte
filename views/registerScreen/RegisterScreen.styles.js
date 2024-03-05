@@ -146,6 +146,34 @@ navBack: {
       color: 'red',
       marginBottom: 10,
     },    
-    // Añade estilos adicionales según sea necesario
+    input: {
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+    borderBottomColor: 'grey',
+    padding: 10,
+    marginBottom: 20,
+    width: width * 0.8, // Ajusta el ancho según tus necesidades
+  },
+  inputActive: {
+    borderBottomColor: '#24A6E4', // Cambia esto según tus preferencias
+  },
+  errorInput: {
+    borderColor: 'red',
+    borderWidth: 1,
+  },
+  errorText: {
+    fontSize: 14,
+    color: 'red',
+    marginBottom: 10,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    color: 'white', // Asegúrate de que el color sea visible contra el fondo
+  },
   });
   

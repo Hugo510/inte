@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "inte",
+    "slug": "inte",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.victor3041.inte"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.victor3041.inte"
+    },
+    "web": {},
+    "extra": {
+      "eas": {
+        "projectId": "5c08f2d1-de7e-4d50-9780-507781dcd3fa"
+      }
+    }
+  }
+}
+

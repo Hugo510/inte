@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Animated,View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Button, Alert, ActivityIndicator } from 'react-native';
+import { Animated, View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Button, Alert, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DatePicker from '@react-native-community/datetimepicker';
@@ -13,8 +13,8 @@ const registerSchema = Yup.object().shape({
   firstName: Yup.string().required('Nombre es requerido'),
   lastName: Yup.string().required('Apellido es requerido'),
   birthDate: Yup.date()
-  .max(new Date(), "No puedes seleccionar una fecha futura")
-  .required("La fecha de nacimiento es requerida"),
+    .max(new Date(), "No puedes seleccionar una fecha futura")
+    .required("La fecha de nacimiento es requerida"),
 });
 
 const RegisterScreen = ({ navigation }) => {
@@ -22,17 +22,16 @@ const RegisterScreen = ({ navigation }) => {
   const [loading, setLoading] = React.useState(false);
   const [date, setDate] = React.useState(new Date());
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const opacity = useRef(new Animated.Value(0)).current; // Inicializa la opacidad a 0
+  const opacity = useRef(new Animated.Value(0)).current;
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
-    animateOpacity(1); // Comienza a aparecer
+    animateOpacity(1);
   };
-  
+
   const hideDatePicker = () => {
-    animateOpacity(0); // Comienza a desaparecer
+    animateOpacity(0);
   };
-  
 
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -42,17 +41,15 @@ const RegisterScreen = ({ navigation }) => {
 
   const animateOpacity = (toValue) => {
     Animated.timing(opacity, {
-      toValue: toValue, // Animar hacia el valor objetivo (1 para mostrar, 0 para ocultar)
-      duration: 500, // Duración de la animación
+      toValue: toValue,
+      duration: 500,
       useNativeDriver: true,
     }).start(() => {
       if (toValue === 0) {
-        // Una vez que la animación de desaparecer completa, oculta el DatePicker
         setDatePickerVisibility(false);
       }
     });
   };
-  
 
   return (
     <KeyboardAvoidingView
@@ -63,29 +60,30 @@ const RegisterScreen = ({ navigation }) => {
         source={require('../../assets/images/background.jpg')}
         style={styles.imageContainer}
       >
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.navBack}>&lt;</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Text style={styles.navBack}>&lt;</Text>
-          </TouchableOpacity>
-      
         <Text style={styles.title}>Air Guard.</Text>
         <Text style={styles.subtitle}>¿Listo para dar el paso?</Text>
-        {/* You can add overlay content here */}
 
-        {/* Contenido del ImageBackground */}
         <Formik
           initialValues={{ email: '', password: '', firstName: '', lastName: '', birthDate: new Date() }}
           validationSchema={registerSchema}          
-          onSubmit={async (values, { setSubmitting }) => {
-            setLoading(true); // Inicia el indicador de carga
+          onSubmit={async (values, { setSubmitting, resetForm  }) => {
+            console.log("Inicio del onSubmit"); // Paso 6: Asegurarse que esta parte del código se ejecuta
+            setLoading(true);
             const userData = {
               ...values,
               birthDate: date.toISOString(),
               isAdmin,
             };
+            
+            console.log("Valores a enviar:", userData); // Verificar los valores que se intentan enviar
 
-            const endpoint = isAdmin ? `http://${global.ipDireccion}:3000/api/admins/register` : `http://${global.ipDireccion}:3000/api/admins/register`;
+            const endpoint = isAdmin ? `http://${global.ipDireccion}:3000/api/admins/register` : `http://${global.ipDireccion}:3000/api/users/register`;
             try {
+              console.log("Intentando enviar datos al servidor..."); // Paso 6: Confirmar que llegamos a este punto
               const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -94,23 +92,30 @@ const RegisterScreen = ({ navigation }) => {
 
               const json = await response.json();
               if (response.ok) {
-                Alert.alert('Éxito', 'Usuario registrado correctamente');
-                // Implementa la navegación o la limpieza del formulario aquí
+                Alert.alert('Éxito', 'Usuario registrado correctamente', [
+                  { text: "OK", onPress: () => {
+                    resetForm();
+                    setDate(new Date()); // Reiniciar la fecha también si es parte del formulario
+                    setIsAdmin(false); // Reiniciar cualquier otro estado que no esté manejado directamente por Formik
+                    // Aquí puedes agregar navegación u otras acciones de limpieza
+                  }}
+                ]);
               } else {
                 Alert.alert('Error', json.message || 'No se pudo registrar el usuario');
               }
             } catch (error) {
+              console.error("Error al enviar datos:", error);
               Alert.alert('Error', 'No se pudo conectar al servidor');
             } finally {
-              setSubmitting(false); // Finaliza el estado de envío de Formik
-              setLoading(false); // Finalizar la carga
+              console.log("Finalizando onSubmit");
+              setSubmitting(false);
+              setLoading(false);
             }
           }}
         >
           {({ handleChange, handleBlur, handleSubmit, values, touched, errors, setFieldValue }) => (
             <>
-            <Text style={styles.header}>Registro</Text>
-              {/* Inputs del formulario */}
+              <Text style={styles.header}>Registro</Text>
               <TextInput
                 style={[styles.input, touched.email && errors.email ? styles.errorInput : null]}
                 placeholder="Email"
@@ -148,35 +153,30 @@ const RegisterScreen = ({ navigation }) => {
               />
               {touched.lastName && errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
 
+              <Button onPress={showDatePicker} title="Escoge una fecha de nacimiento" />
+              {isDatePickerVisible && (
+                <Animated.View style={[{ opacity }, isDatePickerVisible ? styles.visibleDatePicker : styles.hiddenDatePicker]}>
+                  <DatePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={onChangeDate}
+                  />
+                </Animated.View>
+              )}
 
-                      {/* DatePicker para la fecha de nacimiento */}
-                      <Button onPress={showDatePicker} title="Escoge una fecha de nacimiento" />
-                        {isDatePickerVisible && (
-                          <Animated.View style={[{ opacity }, isDatePickerVisible ? styles.visibleDatePicker : styles.hiddenDatePicker]}>
-                            <DatePicker
-                              value={date}
-                              mode="date"
-                              display="default"
-                              onChange={onChangeDate}
-                            />
-                          </Animated.View>                        
-                        )}
+              <View style={styles.checkboxContainer}>
+                <Checkbox
+                  status={isAdmin ? 'checked' : 'unchecked'}
+                  onPress={() => setIsAdmin(!isAdmin)}
+                />
+              </View>
 
-
-                     {/* Checkbox para Administrador */}
-                    <View style={styles.checkboxContainer}>
-                      <Checkbox
-                        status={values.isAdmin ? 'checked' : 'unchecked'}
-                        onPress={() => setFieldValue('isAdmin', !values.isAdmin)}
-                      />
-                    </View>
-                  
               <Button
                 onPress={handleSubmit}
                 title={loading ? "Cargando..." : "Registrar"}
                 disabled={loading}
               />
-
             </>
           )}
         </Formik>

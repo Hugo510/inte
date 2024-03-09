@@ -7,6 +7,9 @@ import CardsScreen from '../views/cards/cardsScreen';
 import DashboardScreen from '../views/dashboard/dashboardScreen';
 import ProfileScreen from '../views/profile/profileScreen';
 import GraphicScreen from '../views/graphics/graphicsScreen';
+import RequestsScreen from '../views/request/requesScreen';
+import AdminDashboardScreen from '../views/adminDashboard/adminDashboardScreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +26,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Graphic" component={GraphicScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Request" component={RequestsScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ headerShown: false }}/>
         {/* Agrega aquí más pantallas si es necesario */}
       </Stack.Navigator>
   );

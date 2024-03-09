@@ -53,15 +53,51 @@ export default StyleSheet.create({
       fontWeight: 'bold',
     },
     cardContainer: {
-      borderRadius: 8, // Esquinas redondeadas para las tarjetas
-      padding: basePadding,
-      marginVertical: 8,
-      marginHorizontal: 16,
-      shadowOpacity: 0.1, // Sombra para las tarjetas
-      shadowRadius: 5,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: 3, // Elevación para Android
+      borderRadius: 10, // Esquinas más redondeadas para un look moderno
+      padding: 15, // Aumentar el padding para más espacio alrededor del contenido
+      marginVertical: 10,
+      marginHorizontal: 12,
+      shadowOpacity: 0.2, // Sombra más pronunciada para profundidad
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 5, // Elevación para Android
+      backgroundColor: '#FFFFFF', // Fondo blanco para contraste con el texto y los iconos
     },
+    
+    cardTitle: {
+      fontSize: 18, // Hacer el título más grande para destacar
+      fontWeight: 'bold',
+      color: '#333333', // Color oscuro para mayor contraste
+      marginBottom: 5,
+    },
+    
+    cardValue: {
+      fontSize: 16,
+      color: '#666666', // Color más suave para el cuerpo del texto
+      marginBottom: 10, // Más espacio antes del timestamp
+    },
+    
+    cardTimestamp: {
+      fontSize: 14,
+      color: '#999999', // Color suave para el timestamp, indica información secundaria
+      marginBottom: 10, // Espacio antes del botón de acción, si aplica
+    },
+    
+    actionButton: {
+      backgroundColor: '#6200EE', // Usar el color principal para acciones
+      paddingVertical: 8,
+      paddingHorizontal: 20,
+      borderRadius: 20, // Botones con bordes redondeados
+      alignSelf: 'flex-start', // Alinear el botón al inicio
+      marginTop: 10, // Espacio desde el texto anterior
+    },
+    
+    actionButtonText: {
+      color: '#FFFFFF', // Texto blanco para contraste
+      fontSize: 16, // Tamaño claro y legible para acciones
+      fontWeight: 'bold',
+    },
+    
     bottomNavContainer: {
       flexDirection: 'row',
       justifyContent: 'space-around',

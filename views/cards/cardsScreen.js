@@ -42,6 +42,13 @@ const CardsScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const sensorTypeMapping = {
+    'ALL': ['gasDetector', 'ultrasonic', 'temperature'],
+    'GAS': 'gasDetector',
+    'ULTRASONICO': 'ultrasonic',
+    'TEMPERATURA': 'temperature',
+  };
+
   useEffect(() => {
     const loadSensorAlerts = async () => {
       setIsLoading(true);
@@ -54,7 +61,7 @@ const CardsScreen = ({ navigation }) => {
           throw new Error('User token or user ID not available');
         }
 
-        const deviceResponse = await axios.get(`http://${global.ipDireccion}:3000/api/devices/byUser/${userId}`, {
+        const deviceResponse = await axios.get(`http://${global.ipDireccion}:3000/api/devices/byAdmin`, {
           headers: { Authorization: `Bearer ${userToken}` },
         });
 
@@ -63,10 +70,12 @@ const CardsScreen = ({ navigation }) => {
         }
 
         const deviceId = deviceResponse.data[0]._id; // Asumiendo que el usuario tiene al menos un dispositivo
-        const sensorTypes = selectedCategory === 'ALL' ? ['gasDetector', 'ultrasonic', 'temperature'] : [selectedCategory];
+        const mappedSensorTypes = selectedCategory === 'ALL' ? sensorTypeMapping['ALL'] : [sensorTypeMapping[selectedCategory]]; // Asegúrate de que esto sea un array
+
 
         let allAlerts = [];
-        for (const sensorType of sensorTypes) {
+        for (const sensorType of mappedSensorTypes) {
+          console.log(sensorType)
           const alertsResponse = await axios.get(`http://${global.ipDireccion}:3000/api/devices/${deviceId}/sensors/${sensorType}/alerts`, {
             headers: { Authorization: `Bearer ${userToken}` },
           });
@@ -98,7 +107,8 @@ const CardsScreen = ({ navigation }) => {
     setSelectedCategory(category);
   };
 
-  const filteredMessages = messages.filter(message => selectedCategory === 'ALL' || message.category === selectedCategory);
+  const filteredMessages = messages; // Si ya están correctamente filtrados, esto podría ser todo lo que necesitas
+
 
 
   return (
@@ -124,52 +134,75 @@ const CardsScreen = ({ navigation }) => {
   
 
 
-  // Mejoras en CategoriesMenu para mejorar la legibilidad y la experiencia de usuario
-const CategoriesMenu = ({ categories, selectedCategory, onSelectCategory }) => (
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={styles.categoriesContainer}
-  >
-    {categories.map((category) => (
-      <TouchableOpacity
-        key={category}
-        style={[
-          styles.categoryButton,
-          selectedCategory === category && styles.categoryButtonSelected,
-        ]}
-        onPress={() => onSelectCategory(category)}
-      >
-        <Text style={styles.categoryButtonText}>{category}</Text>
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-);
-
-const getAlertStyles = (alertType) => {
-  switch (alertType) {
-      case "WARNING":
-          return { backgroundColor: 'orange', icon: 'exclamation-triangle' };
-      case "INFO":
-          return { backgroundColor: 'blue', icon: 'info-circle' };
-      case "ALERT":
-          return { backgroundColor: 'red', icon: 'times-circle' };
-      default:
-          return { backgroundColor: 'green', icon: 'circle' };
-  }
-};
-
-const OfferCard = ({ type, value, alertType }) => {
-  const { backgroundColor, icon } = getAlertStyles(alertType);
-
-  return (
-      <Card containerStyle={[styles.cardContainer, { backgroundColor }]}>
-          <Icon name={icon} size={50} color="#fff" />
-          <Text style={styles.cardType}>{type}</Text>
-          <Text style={styles.cardValue}>{value}</Text>
-      </Card>
+  const CategoriesMenu = ({ categories, selectedCategory, onSelectCategory }) => (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContainer}>
+      {categories.map((category) => (
+        <TouchableOpacity
+          key={category}
+          style={[
+            styles.categoryButton,
+            selectedCategory === category && styles.categoryButtonSelected,
+          ]}
+          onPress={() => onSelectCategory(category)}
+        >
+          <Text style={[
+            styles.categoryButtonText,
+            selectedCategory === category && styles.categoryButtonTextSelected,
+          ]}>
+            {category}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
-};
+  
+
+  const getAlertStyles = (alertType) => {
+    switch (alertType) {
+      case "Advertencia":
+        return { backgroundColor: 'orange', icon: 'exclamation-triangle', textColor: '#000', buttonText: 'Detalles' };
+      case "Error":
+        return { backgroundColor: 'blue', icon: 'info-circle', textColor: '#fff', buttonText: 'Más Info' };
+      case "Alerta":
+        return { backgroundColor: 'red', icon: 'times-circle', textColor: '#fff', buttonText: 'Resolver' };
+      default:
+        // Un estilo por defecto para tipos de alerta no esperados
+        return { backgroundColor: 'grey', icon: 'question-circle', textColor: '#fff', buttonText: '' };
+    }
+  };
+  
+
+  const OfferCard = ({ id, category, alertType, value, timestamp }) => {
+    const { backgroundColor, icon, textColor, buttonText } = getAlertStyles(alertType);
+    const formattedTimestamp = new Date(timestamp).toLocaleString();
+  
+    const humanReadableCategory = {
+      gasdetector: 'GAS',
+      ultrasonic: 'ULTRASONICO',
+      temperature: 'TEMPERATURA',
+    }[category.toLowerCase()] || 'Desconocido';
+  
+    return (
+      <Card containerStyle={[styles.cardContainer, { backgroundColor }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Icon name={icon} size={30} color={textColor} />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={styles.cardTitle}>{humanReadableCategory}</Text>
+            <Text style={styles.cardValue}>{value}</Text>
+            <Text style={styles.cardTimestamp}>{formattedTimestamp}</Text>
+          </View>
+        </View>
+        {buttonText && (
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.actionButtonText}>{buttonText}</Text>
+          </TouchableOpacity>
+        )}
+      </Card>
+    );
+  };
+  
+  
+
 
 
 const copyToClipboard = (code) => {

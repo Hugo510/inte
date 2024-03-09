@@ -120,58 +120,58 @@ const getAdminById = async (req, res) => {
 
 //--------------------------------------------------------------------------------------------------Admnis
 const addUserForAdmin = async (req, res) => {
+  const { userEmail } = req.body; // Utiliza el correo electrónico en lugar del ID
+  const adminId = req.params.adminId;
+
   try {
-    const { userId } = req.body; // Asume que recibes el ID del usuario existente como parte del cuerpo de la solicitud
-    const adminId = req.params.adminId; // Asume que recibes el ID del admin como parte de la URL
+      // Buscar al usuario por correo electrónico en lugar de ID
+      const user = await User.findOne({ email: userEmail });
+      if (!user) {
+          return res.status(404).send('Usuario no encontrado.');
+      }
 
-    // Verificar si el usuario existe
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).send('Usuario no encontrado.');
-    }
+      // Buscar al admin por ID y verificar si el usuario ya está asociado
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+          return res.status(404).send('Administrador no encontrado.');
+      }
 
-    // Opcional: Verificar si el administrador existe
-    const admin = await Admin.findById(adminId);
-    if (!admin) {
-      return res.status(404).send('Administrador no encontrado.');
-    }
+      const isUserAlreadyMonitored = admin.monitoredUsers.some(userId => userId.equals(user._id));
+      if (isUserAlreadyMonitored) {
+          return res.status(400).send('Este usuario ya está asociado con el administrador.');
+      }
 
-    // Verificar si el usuario ya está asociado con este administrador
-    const isUserAlreadyMonitored = admin.monitoredUsers.some((monitoredUserId) => monitoredUserId.equals(user._id));
-    if (isUserAlreadyMonitored) {
-      return res.status(400).send('Este usuario ya está asociado con el administrador.');
-    }
+      // Asociar el usuario con el administrador
+      admin.monitoredUsers.push(user._id);
+      await admin.save();
 
-    // Asociar el usuario existente con el administrador
-    admin.monitoredUsers.push(user._id);
-    await admin.save();
-
-    res.status(200).json({ message: 'Usuario asociado exitosamente con el administrador', admin });
+      res.status(200).json({ message: 'Usuario asociado exitosamente con el administrador', admin });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error al asociar el usuario con el administrador.');
+      console.error(error);
+      res.status(500).send('Error al asociar el usuario con el administrador.');
   }
 };
 
 const sendMonitoringRequest = async (req, res) => {
-  const { userId } = req.body; // ID del usuario al que se envía la solicitud
-  const adminId = req.user._id; // Asume que se verifica la autenticación y se obtiene el ID del admin
+  const { userEmail } = req.body; // Utiliza el correo electrónico en lugar del ID
+  const adminId = req.user._id; // Se asume la autenticación previa
 
   try {
-      const userExists = await User.exists({ _id: userId });
-      if (!userExists) {
+      // Buscar al usuario por correo electrónico para obtener su ID
+      const user = await User.findOne({ email: userEmail });
+      if (!user) {
           return res.status(404).send('Usuario no encontrado.');
       }
 
       // Añadir la solicitud de monitoreo al admin
       const admin = await Admin.findById(adminId);
-      const alreadyRequested = admin.sentMonitoringRequests.some(request => request.userId.equals(userId));
-      
+      const alreadyRequested = admin.sentMonitoringRequests.some(request => request.userId.equals(user._id));
+
       if (alreadyRequested) {
           return res.status(400).send('La solicitud ya fue enviada a este usuario.');
       }
 
-      admin.sentMonitoringRequests.push({ userId, status: 'pending' });
+      admin.sentMonitoringRequests.push({ userId: user._id, status: 'pending' });
       await admin.save();
 
       res.status(200).send('Solicitud de monitoreo enviada correctamente.');
@@ -181,35 +181,62 @@ const sendMonitoringRequest = async (req, res) => {
   }
 };
 
-
-
 const removeUser = async (req, res) => {
-  const { userId } = req.params;
-    const adminId = req.user._id; // Asume autenticación y que tienes el ID del admin
+  try {
+    const { userEmail } = req.params; // Obtiene el correo electrónico del usuario desde los parámetros de la ruta
+    const adminId = req.user._id; // ID del administrador desde el usuario autenticado
 
-    try {
-        const admin = await Admin.findById(adminId);
-        if (!admin) {
-            return res.status(404).send('Administrador no encontrado.');
-        }
-
-        // Eliminar al usuario de la lista de monitoredUsers
-        admin.monitoredUsers.pull(userId); // Mongoose proporciona el método pull para eliminar por ObjectId
-        await admin.save();
-
-        // Opcionalmente, eliminar la referencia del admin en el User
-        const user = await User.findById(userId);
-        if (user && user.adminUser.equals(adminId)) {
-            user.adminUser = null; // o undefined, dependiendo de cómo quieras manejarlo
-            await user.save();
-        }
-
-        res.status(200).json({ message: 'Usuario eliminado de monitoredUsers' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error al eliminar el usuario.');
+    // Buscar al usuario por correo electrónico
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+        return res.status(404).send('Usuario no encontrado.');
     }
+
+    // Remover al usuario de la lista del administrador
+    const admin = await Admin.findById(adminId);
+    const index = admin.monitoredUsers.indexOf(user._id);
+    if (index > -1) {
+        admin.monitoredUsers.splice(index, 1);
+        await admin.save();
+    } else {
+        return res.status(404).send('Usuario no estaba asociado con este administrador.');
+    }
+
+    res.status(200).json({ message: 'Usuario removido de la lista del administrador.' });
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Error al remover el usuario.');
+}
 };
+
+// Obtener usuarios asociados a un admin
+const getUsersForAdmin = async (req, res) => {
+  try {
+    const adminId = req.params.adminId;
+    const admin = await Admin.findById(adminId).populate('monitoredUsers');
+    if (!admin) {
+      return res.status(404).send('Admin no encontrado');
+    }
+    res.json(admin.monitoredUsers);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+// Obtener todas las solicitudes de monitoreo para un admin
+const getMonitoringRequestsForAdmin = async (req, res) => {
+  try {
+    const adminId = req.params.adminId;
+    const admin = await Admin.findById(adminId).populate('sentMonitoringRequests.userId');
+    if (!admin) {
+      return res.status(404).send('Admin no encontrado');
+    }
+    res.json(admin.sentMonitoringRequests);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 
 //-------------------------------------------------------------------------------------------------------------------Admins-Users
 
@@ -307,5 +334,7 @@ module.exports = {
   deleteDevice,
   addDevice,
   assignUsersToDevice,
-  unassignUsersFromDevice
+  unassignUsersFromDevice,
+  getMonitoringRequestsForAdmin,
+  getUsersForAdmin
 };

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Device = require('./model/device.model.js'); // Asegúrate de que la ruta sea correcta
 
 // Reemplaza con tu cadena de conexión correcta
-const mongoDBAtlasConnectionString = 'mongodb+srv://victor3041220191:Oq4g0EOjTcEnRoVt@cluster0.usbre0o.mongodb.net/inte?retryWrites=true&w=majority';
+const mongoDBAtlasConnectionString = 'mongodb+srv://victor3041220191:WJWRDxOHBt1EPGlY@cluster0.usbre0o.mongodb.net/inte?retryWrites=true&w=majority';
 
 // Función para generar una fecha aleatoria dentro de la última semana
 function randomDateLastWeek() {
@@ -22,7 +22,7 @@ function randomDateLastWeek() {
   
       console.log('Conexión a MongoDB establecida con éxito.');
   
-      const sensorTypes = ['gasDetector', 'ultrasonic', 'temperature'];
+      const sensorTypes = ['gasDetector', 'ultrasonic', 'temperature', 'humidity'];
   
       for (let type of sensorTypes) {
         const data = [];
@@ -38,6 +38,9 @@ function randomDateLastWeek() {
             case 'temperature':
               record = { temperature: Math.random() * 30 + 10, timestamp: randomDateLastWeek() }; // Genera temperatura entre 10 y 40
               break;
+              case 'humidity':
+                record = { temperature: Math.random() * 30 + 10, timestamp: randomDateLastWeek() }; // Genera temperatura entre 10 y 40
+                break;
             default:
               continue; // Si el tipo de sensor no es reconocido, continúa con el siguiente
           }
@@ -61,5 +64,5 @@ function randomDateLastWeek() {
   }
   
   // ID del dispositivo extraído de tu estado actual en la captura de pantalla
-  const deviceId = '65df7f4da548f31067377549';
+  const deviceId = '65ed542988b6ad83bb31d8d8';
   addRandomSensorData(deviceId);

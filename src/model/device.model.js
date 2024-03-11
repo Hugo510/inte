@@ -32,6 +32,19 @@ const ultrasonicSchema = new mongoose.Schema({
     alerts: [alertSchema],
 });
 
+const humiditySchema = new mongoose.Schema({
+    parameters: {
+      max: { type: Number, required: true },
+      min: { type: Number, required: true },
+    },
+    data: [{
+      humidity: Number,
+      timestamp: { type: Date, default: Date.now },
+    }],
+    alerts: [alertSchema],
+  });
+  
+
 const temperatureSchema = new mongoose.Schema({
     parameters: {
         max: { type: Number, required: true },
@@ -63,7 +76,8 @@ const deviceSchema = new mongoose.Schema({
         gasDetector: gasDetectorSchema,
         ultrasonic: ultrasonicSchema,
         temperature: temperatureSchema,
-    },
+        humidity: humiditySchema, // Agrega esta línea
+      },
     graphicScreenMessages: [{
         timestamp: { type: Date, default: Date.now },
         message: String,

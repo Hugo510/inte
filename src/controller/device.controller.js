@@ -4,38 +4,34 @@ const addDevice = async (req, res) => {
     const { adminUser, room, monitoredUsers, sensors, graphicScreenMessages } = req.body;
 
     try {
-        // Crear el nuevo dispositivo con datos detallados para cada sensor
+        // Crear el nuevo dispositivo con datos detallados para cada sensor, incluido el nuevo sensor de humedad
         const newDevice = new Device({
             adminUser,
             room,
             monitoredUsers,
             sensors: {
-                gasDetector: {
-                    parameters: sensors.gasDetector.parameters,
-                    data: sensors.gasDetector.data,
-                    alerts: sensors.gasDetector.alerts,
-                },
-                ultrasonic: {
-                    parameters: sensors.ultrasonic.parameters,
-                    data: sensors.ultrasonic.data,
-                    alerts: sensors.ultrasonic.alerts,
-                },
-                temperature: {
-                    parameters: sensors.temperature.parameters,
-                    data: sensors.temperature.data,
-                    alerts: sensors.temperature.alerts,
-                },
+                gasDetector: sensors.gasDetector,
+                ultrasonic: sensors.ultrasonic,
+                temperature: sensors.temperature,
+                humidity: sensors.humidity // Asegúrate de que la propiedad 'humidity' se pase en la solicitud
             },
             graphicScreenMessages,
         });
 
+        // Guarda el nuevo dispositivo en la base de datos
         const savedDevice = await newDevice.save();
-        res.send(savedDevice);
+        // Envía la respuesta con el dispositivo guardado, excluyendo datos sensibles si es necesario
+        res.status(201).json({
+            message: "Dispositivo agregado con éxito",
+            device: savedDevice
+        });
     } catch (error) {
+        // Registra el error en el servidor y envía un mensaje de error
         console.error(error);
-        res.status(500).send('Error al agregar el dispositivo');
+        res.status(500).send('Error al agregar el dispositivo: ' + error.message);
     }
 };
+
 
 const getDevices = async (req, res) => {
     try {
@@ -281,4 +277,4 @@ module.exports = {
     loadGraphicScreenMessages,
     saveSensorAlert,
     getSensorAlerts
-  };
+    };

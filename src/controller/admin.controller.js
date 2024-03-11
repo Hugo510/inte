@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Admin = require('../model/admin.model.js'); // Asegúrate de que el nombre del archivo y la ruta sean correctos
 const User = require('../model/user.model.js'); // Asegúrate de que la ruta sea correcta
 const Device = require('../model/device.model.js'); 
@@ -183,43 +184,62 @@ const sendMonitoringRequest = async (req, res) => {
 
 const removeUser = async (req, res) => {
   try {
-    const { userEmail } = req.params; // Obtiene el correo electrónico del usuario desde los parámetros de la ruta
-    const adminId = req.user._id; // ID del administrador desde el usuario autenticado
+      const { userEmail } = req.params;
+      const adminId = req.user._id;
 
-    // Buscar al usuario por correo electrónico
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-        return res.status(404).send('Usuario no encontrado.');
-    }
+      const user = await User.findOne({ email: userEmail });
+      if (!user) {
+          return res.status(404).send('Usuario no encontrado.');
+      }
 
-    // Remover al usuario de la lista del administrador
-    const admin = await Admin.findById(adminId);
-    const index = admin.monitoredUsers.indexOf(user._id);
-    if (index > -1) {
-        admin.monitoredUsers.splice(index, 1);
-        await admin.save();
-    } else {
-        return res.status(404).send('Usuario no estaba asociado con este administrador.');
-    }
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+          return res.status(404).send('Administrador no encontrado.');
+      }
 
-    res.status(200).json({ message: 'Usuario removido de la lista del administrador.' });
-} catch (error) {
-    console.error(error);
-    res.status(500).send('Error al remover el usuario.');
-}
+      const index = admin.monitoredUsers.indexOf(user._id);
+      if (index > -1) {
+          admin.monitoredUsers.splice(index, 1);
+          await admin.save();
+
+          // Adicionalmente, remover la relación del usuario con cualquier dispositivo asociado a este admin
+          await Device.updateMany({ adminUser: adminId }, { $pull: { monitoredUsers: user._id } });
+
+          res.status(200).json({ message: 'Usuario removido exitosamente.' });
+      } else {
+          return res.status(404).send('Usuario no estaba asociado con este administrador.');
+      }
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al remover el usuario.');
+  }
 };
+
 
 // Obtener usuarios asociados a un admin
 const getUsersForAdmin = async (req, res) => {
   try {
     const adminId = req.params.adminId;
+    // Verifica primero si el ID proporcionado es válido para un documento MongoDB.
+    if (!mongoose.Types.ObjectId.isValid(adminId)) {
+      return res.status(400).send('ID de Admin inválido');
+    }
+
     const admin = await Admin.findById(adminId).populate('monitoredUsers');
+
     if (!admin) {
       return res.status(404).send('Admin no encontrado');
     }
+
+    // Podrías querer verificar también si el admin tiene usuarios monitoreados.
+    if (admin.monitoredUsers.length === 0) {
+      return res.status(204).send(); // 204 No Content, si prefieres indicar que la operación fue exitosa pero no hay contenido para devolver.
+    }
+
     res.json(admin.monitoredUsers);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error(`Error al obtener usuarios para el admin ${req.params.adminId}: ${error.message}`);
+    res.status(500).send('Error al procesar la solicitud');
   }
 };
 
@@ -260,20 +280,25 @@ const deleteDevice = async (req, res) => {
   const { deviceId } = req.params;
 
   try {
-      const device = await Device.findByIdAndDelete(deviceId);
-      if (!device) return res.status(404).send({ message: 'Dispositivo no encontrado' });
+      // Primero verificar si el dispositivo existe y obtener su referencia
+      const device = await Device.findById(deviceId);
+      if (!device) {
+          return res.status(404).send({ message: 'Dispositivo no encontrado' });
+      }
 
-      // Opcional: Si los usuarios tienen referencias a este dispositivo, también debes eliminarlas
-      // Por ejemplo, si 'devices' es un campo en User que almacena los ID de dispositivos asignados
-      //await User.updateMany({ devices: deviceId }, { $pull: { devices: deviceId } });
+      // Proceder con la eliminación del dispositivo
+      await Device.findByIdAndDelete(deviceId);
+
+      // Opcionalmente, si se manejan referencias de dispositivos dentro de los modelos de Usuario,
+      // remover esta referencia del dispositivo para todos los usuarios asociados
+      await User.updateMany({}, { $pull: { monitoredDevices: deviceId } });
 
       res.status(200).json({ message: 'Dispositivo eliminado correctamente' });
   } catch (error) {
+      console.error(error);
       res.status(500).send({ message: 'Error al eliminar el dispositivo', error: error.message });
   }
 };
-
-
 
 
 const assignUsersToDevice = async (req, res) => {

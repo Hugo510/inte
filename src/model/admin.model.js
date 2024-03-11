@@ -37,6 +37,10 @@ const adminSchema = new mongoose.Schema({
         type: String,
         default: 'admin',
     },
+    monitoredUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }],   
     sentMonitoringRequests: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,

@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get("window").width; // Obtener el ancho de la pantalla para el gráfico
 
-const categories = ['ALL', 'GAS', 'ULTRASONICO', 'TEMPERATURA'];
+const categories = ['ALL', 'GAS', 'ULTRASONICO', 'TEMPERATURA', 'HUMEDAD'];
 
 const GraphicScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -45,6 +45,7 @@ const GraphicScreen = ({ navigation }) => {
             case 'GAS': mappedSensorType = 'gasDetector'; break;
             case 'ULTRASONICO': mappedSensorType = 'ultrasonic'; break;
             case 'TEMPERATURA': mappedSensorType = 'temperature'; break;
+            case 'HUMEDAD': mappedSensorType = 'humidity'; break;
             default: throw new Error('Tipo de sensor no reconocido: ' + sensorType);
           }
 
@@ -102,6 +103,9 @@ const GraphicScreen = ({ navigation }) => {
             values = sensorData.map(item => item.distance);
             break;
           case 'TEMPERATURA':
+            values = sensorData.map(item => item.temperature);
+            break;
+            case 'HUMEDAD':
             values = sensorData.map(item => item.temperature);
             break;
           default:

@@ -6,7 +6,7 @@ import styles from './cardsScreen.styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const categories = ['ALL', 'GAS', 'ULTRASONICO', 'TEMPERATURA'];
+const categories = ['ALL', 'GAS', 'ULTRASONICO', 'TEMPERATURA', 'HUMEDAD'];
 
 /* async function registerForPushNotificationsAsync() {
   let token;
@@ -47,6 +47,7 @@ const CardsScreen = ({ navigation }) => {
     'GAS': 'gasDetector',
     'ULTRASONICO': 'ultrasonic',
     'TEMPERATURA': 'temperature',
+    'HUMEDAD': 'humidity',
   };
 
   useEffect(() => {

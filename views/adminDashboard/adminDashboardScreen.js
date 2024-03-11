@@ -197,6 +197,35 @@ const AdminDashboardScreen = () => {
     }
   };
 
+  const assignDeviceToUser = async (deviceId, userId) => {
+    const userToken = await AsyncStorage.getItem('userToken');
+    try {
+      await axios.post(
+        `http://${global.ipDireccion}:3000/api/devices/${deviceId}/assignUsers`,
+        { userIds: [userId] },
+        { headers: { 'Authorization': `Bearer ${userToken}` } }
+      );
+      Alert.alert("Dispositivo asignado exitosamente");
+    } catch (error) {
+      Alert.alert("Error al asignar dispositivo", error.message || "Ocurrió un error al asignar el dispositivo.");
+    }
+  };
+  
+  const unassignDeviceFromUser = async (deviceId, userId) => {
+    const userToken = await AsyncStorage.getItem('userToken');
+    try {
+      await axios.post(
+        `http://${global.ipDireccion}:3000/api/devices/${deviceId}/unassignUsers`,
+        { userIds: [userId] },
+        { headers: { 'Authorization': `Bearer ${userToken}` } }
+      );
+      Alert.alert("Dispositivo desasignado exitosamente");
+    } catch (error) {
+      Alert.alert("Error al desasignar dispositivo", error.message || "Ocurrió un error al desasignar el dispositivo.");
+    }
+  };
+  
+
   const removeUser = async (userEmail) => {
     const userToken = await AsyncStorage.getItem('userToken');
     try {
@@ -435,7 +464,30 @@ const renderAddEditDeviceModal = () => (
 );
 
 const renderAssignUsersModal = () => {
-  
+  // Asume que `originalAssignedUsers` se ha establecido al abrir el modal, similar a cómo se configurarían `selectedUser` y `selectedDeviceIds`.
+  const originalAssignedUsers = selectedDevice.monitoredUsers.map(user => user._id);
+
+  // Esta función se llamará cuando se presione "Asignar Seleccionados".
+  const handleAssignUnassignUsers = async () => {
+    // Determinar qué usuarios asignar (no estaban originalmente, pero ahora están seleccionados)
+    const usersToAssign = selectedUsers.filter(userId => !originalAssignedUsers.includes(userId));
+    // Determinar qué usuarios desasignar (estaban originalmente, pero ahora no están seleccionados)
+    const usersToUnassign = originalAssignedUsers.filter(userId => !selectedUsers.includes(userId));
+
+    // Asignar usuarios
+    for (const userId of usersToAssign) {
+      await assignUserToDevice(selectedDevice._id, [userId]);
+    }
+    // Desasignar usuarios
+    for (const userId of usersToUnassign) {
+      await unassignUserFromDevice(selectedDevice._id, [userId]);
+    }
+
+    // Actualizar la UI según sea necesario
+    closeModal();
+    loadData(); // Recargar los datos para reflejar los cambios
+  };
+
   return (
     <Modal animationType="slide" transparent={true} visible={isModalVisible} onRequestClose={closeModal}>
       <View style={styles.centeredView}>
@@ -447,18 +499,19 @@ const renderAssignUsersModal = () => {
                 <Checkbox
                   status={selectedUsers.includes(user._id) ? 'checked' : 'unchecked'}
                   onPress={() => toggleUserSelection(user._id)}
-                  color={'#6200ee'} // You can set the color like this
+                  color={'#6200ee'}
                 />
               </View>
             ))}
           </ScrollView>
-          <Button title="Asignar Seleccionados" onPress={assignUsersToSelectedDevice} />
+          <Button title="Confirmar Cambios" onPress={handleAssignUnassignUsers} />
           <Button title="Cerrar" onPress={closeModal} />
         </View>
       </View>
     </Modal>
   );
 };
+
 
 const toggleDeviceSelection = (deviceId) => {
   setSelectedDeviceIds((prevSelected) =>
@@ -497,22 +550,22 @@ const renderEditUserModal = () => {
 const handleUpdateUserDevices = async () => {
   const originalAssignedDevices = selectedUser.devices.map(device => device._id);
 
-  const devicesToAssign = selectedDeviceIds.filter(id => !originalAssignedDevices.includes(id));
-  const devicesToUnassign = originalAssignedDevices.filter(id => !selectedDeviceIds.includes(id));
+  const devicesToAssign = selectedDeviceIds.filter(id => !originalDeviceIds.includes(id));
+  const devicesToUnassign = originalDeviceIds.filter(id => !selectedDeviceIds.includes(id));
 
-  // Llama a assignUserToDevice para cada dispositivo nuevo
+  // Asignar dispositivos al usuario
   for (const deviceId of devicesToAssign) {
-    await assignUserToDevice(deviceId, [selectedUser._id]);
+    await assignDeviceToUser(deviceId, selectedUser._id);
   }
 
-  // Llama a unassignUserFromDevice para cada dispositivo que necesita ser desasignado
+  // Desasignar dispositivos del usuario
   for (const deviceId of devicesToUnassign) {
-    await unassignUserFromDevice(deviceId, [selectedUser._id]);
+    await unassignDeviceFromUser(deviceId, selectedUser._id);
   }
 
-  // Cierra el modal y actualiza la lista de usuarios/dispositivos
+  // Cerrar modal y recargar datos después de actualizar
   closeModal();
-  loadData(); // Asegúrate de que esta función actualiza la interfaz de usuario adecuadamente
+  loadData(); // Asegúrate de que esta función refresque los datos para reflejar los cambios
 };
 
 

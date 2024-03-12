@@ -4,7 +4,7 @@ import LoginScreen from '../views/LoginScreenV/LoginScreen';
 import RegisterScreen from '../views/registerScreen/RegisterScreen';
 import MQTTComponent from '../views/comunication/comunicationScreen';
 import CardsScreen from '../views/cards/cardsScreen';
-import DashboardScreen from '../views/dashboard/dashboardScreen';
+import DashboardScreen from '../views/dashboard/dashBoardScreen';
 import ProfileScreen from '../views/profile/profileScreen';
 import GraphicScreen from '../views/graphics/graphicsScreen';
 import RequestsScreen from '../views/request/requesScreen';
@@ -17,7 +17,7 @@ const AppNavigator = () => {
 
   return (
     
-      <Stack.Navigator initialRouteName="HomeStack">
+      <Stack.Navigator initialRouteName="Dashboard">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="HomeStack" component={HomeStackNavigator} options={{ headerShown: false }}/>
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>

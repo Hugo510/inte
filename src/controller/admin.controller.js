@@ -302,44 +302,98 @@ const deleteDevice = async (req, res) => {
 
 
 const assignUsersToDevice = async (req, res) => {
-  const { deviceId } = req.params;
-  const { userIds } = req.body; // Lista de IDs de usuarios
+  const { deviceId } = req.params; // ID del dispositivo
+  const { userIds } = req.body; // Lista de IDs de usuarios a asignar
 
   try {
-      const device = await Device.findById(deviceId);
-      if (!device) return res.status(404).send({ message: 'Dispositivo no encontrado' });
+    // Verificar si el dispositivo pertenece al admin autenticado
+    const device = await Device.findById(deviceId);
+    if (!device || !device.adminUser.equals(req.user._id)) {
+      return res.status(404).send({ message: 'Dispositivo no encontrado o no pertenece al administrador.' });
+    }
 
-      userIds.forEach(userId => {
-          if (!device.monitoredUsers.includes(userId)) {
-              device.monitoredUsers.push(userId);
-          }
-      });
+    // Filtrar para asegurar que solo se añadan usuarios monitoreados por el admin
+    const admin = await Admin.findById(req.user._id);
+    const validUserIds = userIds.filter(userId => admin.monitoredUsers.includes(userId));
 
-      await device.save();
-      res.status(200).json({ message: 'Usuarios asignados correctamente', device });
+    // Asignar usuarios al dispositivo
+    validUserIds.forEach(userId => {
+      if (!device.monitoredUsers.includes(userId)) {
+        device.monitoredUsers.push(userId);
+      }
+    });
+
+    await device.save();
+    res.status(200).json({ message: 'Usuarios asignados correctamente', device });
   } catch (error) {
-      res.status(500).send({ message: 'Error al asignar usuarios al dispositivo', error: error.message });
+    res.status(500).send({ message: 'Error al asignar usuarios al dispositivo', error: error.message });
   }
 };
 
+
 const unassignUsersFromDevice = async (req, res) => {
-  const { deviceId } = req.params;
-  const { userIds } = req.body; // IDs de usuarios a desasignar
+  const { deviceId } = req.params; // ID del dispositivo
+  const { userIds } = req.body; // Lista de IDs de usuarios a desasignar
 
   try {
-      const device = await Device.findById(deviceId);
-      if (!device) return res.status(404).send({ message: 'Dispositivo no encontrado' });
+    const device = await Device.findById(deviceId);
+    if (!device || !device.adminUser.equals(req.user._id)) {
+      return res.status(404).send({ message: 'Dispositivo no encontrado o no pertenece al administrador.' });
+    }
 
-      // Eliminar usuarios de la lista monitoredUsers del dispositivo
-      device.monitoredUsers = device.monitoredUsers.filter(userId => !userIds.includes(userId.toString()));
-      await device.save();
+    // Solo permite desasignar usuarios que actualmente están asignados al dispositivo y son monitoreados por el admin
+    device.monitoredUsers = device.monitoredUsers.filter(userId => 
+      !userIds.includes(userId.toString()) && req.user.monitoredUsers.includes(userId)
+    );
 
-      // Opcional: Si User model tiene referencias a Device, elimínalas aquí
-      //await User.updateMany({ _id: { $in: userIds } }, { $pull: { deviceRefs: deviceId } });
-
-      res.status(200).json({ message: 'Usuarios desasignados correctamente', device });
+    await device.save();
+    res.status(200).json({ message: 'Usuarios desasignados correctamente', device });
   } catch (error) {
-      res.status(500).send({ message: 'Error al desasignar usuarios del dispositivo', error: error.message });
+    res.status(500).send({ message: 'Error al desasignar usuarios del dispositivo', error: error.message });
+  }
+};
+
+const assignDevicesToUsers = async (req, res) => {
+  const { userId } = req.params; // ID del usuario a quien asignar dispositivos
+  const { deviceIds } = req.body; // Lista de IDs de dispositivos a asignar
+
+  try {
+    // Verificar si el usuario está monitoreado por el admin y si los dispositivos pertenecen al admin
+    const user = await User.findById(userId);
+    if (!user || !req.user.monitoredUsers.includes(user._id.toString())) {
+      return res.status(404).send({ message: 'Usuario no encontrado o no está bajo su monitoreo.' });
+    }
+
+    // Filtrar y asignar solo los dispositivos que pertenecen al admin
+    const devices = await Device.find({ _id: { $in: deviceIds }, adminUser: req.user._id });
+    const validDeviceIds = devices.map(device => device._id);
+
+    // Actualizar el usuario con los dispositivos asignados (se asume la existencia de un campo apropiado)
+    await User.findByIdAndUpdate(userId, { $addToSet: { devices: { $each: validDeviceIds } } });
+
+    res.status(200).json({ message: 'Dispositivos asignados al usuario correctamente.' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error al asignar dispositivos al usuario', error: error.message });
+  }
+};
+
+const unassignDevicesFromUsers = async (req, res) => {
+  const { userId } = req.params; // ID del usuario a desasignar dispositivos
+  const { deviceIds } = req.body; // Lista de IDs de dispositivos a desasignar
+
+  try {
+    // Verificar si el usuario está monitoreado por el admin
+    const user = await User.findById(userId);
+    if (!user || !req.user.monitoredUsers.includes(user._id.toString())) {
+      return res.status(404).send({ message: 'Usuario no encontrado o no está bajo su monitoreo.' });
+    }
+
+    // Desasignar los dispositivos especificados del usuario
+    await User.findByIdAndUpdate(userId, { $pull: { devices: { $in: deviceIds } } });
+
+    res.status(200).json({ message: 'Dispositivos desasignados del usuario correctamente.' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error al desasignar dispositivos del usuario', error: error.message });
   }
 };
 
@@ -361,5 +415,7 @@ module.exports = {
   assignUsersToDevice,
   unassignUsersFromDevice,
   getMonitoringRequestsForAdmin,
-  getUsersForAdmin
+  getUsersForAdmin,
+  assignDevicesToUsers,
+  unassignDevicesFromUsers
 };

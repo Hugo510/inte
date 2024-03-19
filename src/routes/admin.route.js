@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerAdmin, loginAdmin, login, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice, getMonitoringRequestsForAdmin, getUsersForAdmin} = require('../controller/admin.controller');
+const { registerAdmin, loginAdmin, login, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice, getMonitoringRequestsForAdmin, getUsersForAdmin, assignDevicesToUsers, unassignDevicesFromUsers } = require('../controller/admin.controller');
 const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticación y chequeo de rol
 
 // Registro de administrador
@@ -12,13 +12,20 @@ router.post('/login', login);
 // Asume que tienes autenticación y autorización middleware para proteger esta ruta
 router.post('/admin/:adminId/addUser', protect, addUserForAdmin);
 
-router.post('/sendMonitoringRequest/:userEmail', protect, sendMonitoringRequest);
+// Ruta para enviar solicitud de monitoreo
+router.post('/sendMonitoringRequest', protect, sendMonitoringRequest);
 
 router.post('/devices', protect, addDevice);
 
 router.post('/devices/:deviceId/assignUsers', protect, assignUsersToDevice);
 
 router.post('/devices/:deviceId/unassignUsers', protect, unassignUsersFromDevice);
+
+// Asignar dispositivos a usuarios
+router.post('/assignDevicesToUsers', protect, assignDevicesToUsers);
+
+// Desasignar dispositivos de usuarios
+router.post('/unassignDevicesFromUsers', protect, unassignDevicesFromUsers)
 
 // Obtener todos los administradores
 router.get('/', getAdmins);
@@ -35,7 +42,8 @@ router.get('/:adminId/monitoring-requests', protect, getMonitoringRequestsForAdm
 // Actualizar un administrador
 router.put('/:id', updateAdmin);
 
-router.delete('/removeUser/:userId', protect, removeUser);
+// Ruta para eliminar usuario
+router.delete('/removeUser', protect, removeUser);
 
 // Eliminar un administrador
 router.delete('/:id', deleteAdmin);

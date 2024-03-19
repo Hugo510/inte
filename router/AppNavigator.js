@@ -7,6 +7,7 @@ import CardsScreen from '../views/cards/cardsScreen';
 import DashboardScreen from '../views/dashboard/dashboardScreen';
 import ProfileScreen from '../views/profile/profileScreen';
 import GraphicScreen from '../views/graphics/graphicsScreen';
+/* import Wallet from '../views/graphAd/sensorDataScreen.tsx'; */
 import RequestsScreen from '../views/request/requesScreen';
 import AdminDashboardScreen from '../views/adminDashboard/adminDashboardScreen';
 

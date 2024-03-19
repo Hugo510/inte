@@ -53,13 +53,14 @@ const GraphicScreen = ({ navigation }) => {
           const sensorDataResponse = await fetch(endpoint2, { method: 'GET', headers });
           const sensorData = await sensorDataResponse.json();
 
-          console.log(`Data for ${mappedSensorType}: ${sensorData}`)
+          //console.log(`Data for ${mappedSensorType}: ${sensorData}`)
 
           if (!sensorDataResponse.ok) {
-            throw new Error(sensorData.message || `Failed to fetch data for sensor: ${sensorType}`);
+            throw new Error(sensorData.message || `Failed to fetch data for sensor: ${sensorType}`);            
           }
 
           if (sensorData && sensorData.length > 0) {
+            console.log(sensorData)
             setGraphData(prevData => ({
               ...prevData,
               [sensorType]: sensorData

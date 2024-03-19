@@ -1,105 +1,27 @@
 import { StyleSheet } from 'react-native';
 
-const PRIMARY_COLOR = '#5E72E4'; // Ejemplo de color primario, puede ser el de tu marca
-const SECONDARY_COLOR = '#F7FAFC'; // Color para fondos de elementos, por contraste
-const TEXT_COLOR = '#32325D'; // Color oscuro para el texto que proporcione suficiente contraste
-const DANGER_COLOR = '#F5365C'; // Color para acciones de peligro como eliminar
-
 export default StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: SECONDARY_COLOR,
+    backgroundColor: '#F5F5F5', // Un fondo claro para dar sensación de amplitud
+    padding: 20, // Un poco de padding para no pegar los contenidos a los bordes
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: TEXT_COLOR,
-    textAlign: 'center', // Centrar el título
-  },
-  list: {
-    marginBottom: 20,
+    color: '#333', // Un color oscuro para el texto que ofrezca contraste
+    marginBottom: 20, // Espacio antes de la lista
+    textAlign: 'center', // Centrar el título para dar una sensación de balance
   },
   listItem: {
-    // Estilo para cada ítem de la lista
-    padding: 10,
-    margin: 10,
-    backgroundColor: '#FFF',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderRadius: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    shadowOpacity: 0.1,
-    elevation: 2,
-  },
-  listItemText: {
-    flex: 1,
-    fontSize: 16,
-    color: TEXT_COLOR,
-    paddingBottom: 5, // Espacio entre textos
-  },
-  buttonContainer: {
-    // Contenedor para los botones de acción
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  button: {
-    borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    marginVertical: 10, // Espacio vertical para evitar toques accidentales
-    alignSelf: 'flex-start', // Alinear botones a la izquierda
-    backgroundColor: PRIMARY_COLOR, // Botón con el color primario
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  acceptButton: {
-    backgroundColor: PRIMARY_COLOR,
-  },
-  rejectButton: {
-    backgroundColor: DANGER_COLOR,
-  },
-  editButton: {
-    // Botón para editar
-    backgroundColor: '#FFD700',
-    padding: 8,
-    borderRadius: 5,
-    marginRight: 5,
-  },
-  assignButton: {
-    backgroundColor: '#11CDEF', // Un color que indique asignación
-  },
-  deleteButton: {
-    // Botón para eliminar
-    backgroundColor: '#DC3545',
-    padding: 8,
-    borderRadius: 5,
-  },
-  // Estilos adicionales para botones con iconos
-  buttonIcon: {
-    marginRight: 10, // Espacio entre el icono y el texto
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
+    backgroundColor: 'white', // Fondo blanco para los items para contraste
+    padding: 20, // Espaciado interno
+    borderRadius: 10, // Bordes redondeados para suavizar
+    flexDirection: 'row', // Organizar contenido en fila
+    alignItems: 'center', // Alinear ítems verticalmente
+    justifyContent: 'space-between', // Justificar contenido distribuido
+    marginBottom: 10, // Espacio entre ítems
+    shadowColor: "#000", // Sombras para dar sensación de elevación
     shadowOffset: {
       width: 0,
       height: 2,
@@ -108,9 +30,32 @@ export default StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  userListItem: {
-    flexDirection: 'row',
+  listItemText: {
+    fontSize: 18, // Tamaño de fuente legible
+    color: '#333', // Color oscuro para contraste
+    flex: 1, // Permitir que el texto ocupe el espacio disponible
+  },
+  icon: {
+    // Ajustes para los íconos (Material Icons)
+    marginLeft: 15, // Espaciado al lado izquierdo
+  },
+  button: {
+    // Estilo para botones principales en el dashboard
+    backgroundColor: '#007BFF', // Un azul atractivo para acciones principales
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignSelf: 'center', // Centrar botón en la pantalla
+    marginTop: 20,
+  },
+  buttonText: {
+    color: 'white', // Texto blanco para contraste
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center', // Centrar spinner de carga
     alignItems: 'center',
-    marginBottom: 10,
   },
 });

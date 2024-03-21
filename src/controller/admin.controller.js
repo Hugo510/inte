@@ -182,6 +182,62 @@ const sendMonitoringRequest = async (req, res) => {
   }
 };
 
+const updateAndResendMonitoringRequest = async (req, res) => {
+  // Supongamos que este endpoint recibe el newEmail y requestId en el body
+  const { newEmail, requestId } = req.body;
+
+  try {
+    const adminId = req.user._id;
+    const admin = await Admin.findById(adminId);
+    if (!admin) return res.status(404).send('Admin no encontrado.');
+
+    // Encuentra y actualiza la solicitud de monitoreo con el nuevo correo electrónico
+    const requestIndex = admin.sentMonitoringRequests.findIndex(request => request._id.equals(requestId));
+    if (requestIndex === -1) return res.status(404).send('Solicitud de monitoreo no encontrada.');
+
+    // Verificar si el nuevo correo ya tiene una solicitud pendiente o aceptada
+    const user = await User.findOne({ email: newEmail });
+    if (!user) return res.status(404).send('Nuevo usuario no encontrado.');
+
+    const alreadyRequested = admin.sentMonitoringRequests.some(request => request.userId.equals(user._id));
+    if (alreadyRequested) return res.status(400).send('La solicitud ya fue enviada a este nuevo usuario.');
+
+    // Aquí se modifica el objeto req para simular un nuevo request
+    req.body = { userEmail: newEmail }; // Actualizar el body para reenviar la solicitud
+    req.user._id = adminId; // Asegurar que el ID del admin esté presente
+
+    // Llamar a sendMonitoringRequest indirectamente
+    await sendMonitoringRequest(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al actualizar y reenviar la solicitud de monitoreo.');
+  }
+};
+
+
+
+
+const deleteMonitoringRequest = async (req, res) => {
+  const { adminId, requestId } = req.params;
+
+  try {
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).send('Admin no encontrado.');
+    }
+
+    // Elimina la solicitud del array
+    admin.sentMonitoringRequests = admin.sentMonitoringRequests.filter(request => !request._id.equals(requestId));
+    await admin.save();
+
+    res.json({ message: 'Solicitud de monitoreo eliminada correctamente.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al eliminar la solicitud de monitoreo.');
+  }
+};
+
+
 const removeUser = async (req, res) => {
   try {
       const { userEmail } = req.params;
@@ -251,11 +307,19 @@ const getMonitoringRequestsForAdmin = async (req, res) => {
     if (!admin) {
       return res.status(404).send('Admin no encontrado');
     }
-    res.json(admin.sentMonitoringRequests);
+
+    // Crear un objeto con la información que deseas enviar
+    const responseData = {
+      email: admin.email, // Incluir el email del admin
+      sentMonitoringRequests: admin.sentMonitoringRequests // Incluir las solicitudes de monitoreo enviadas
+    };
+
+    res.json(responseData); // Enviar el objeto como respuesta
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
+
 
 
 //-------------------------------------------------------------------------------------------------------------------Admins-Users
@@ -409,6 +473,8 @@ module.exports = {
   deleteAdmin,
   addUserForAdmin,
   sendMonitoringRequest,
+  updateAndResendMonitoringRequest,
+  deleteMonitoringRequest,
   removeUser,
   deleteDevice,
   addDevice,

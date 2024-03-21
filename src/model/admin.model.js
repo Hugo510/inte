@@ -50,7 +50,7 @@ const adminSchema = new mongoose.Schema({
         deviceId: { // Añadido para especificar a qué dispositivo se refiere la solicitud
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Device',
-            required: true
+            required: false
         },
         status: {
             type: String,

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerAdmin, loginAdmin, login, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice, getMonitoringRequestsForAdmin, getUsersForAdmin, assignDevicesToUsers, unassignDevicesFromUsers } = require('../controller/admin.controller');
+const { registerAdmin, loginAdmin, login, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice, getMonitoringRequestsForAdmin, getUsersForAdmin, assignDevicesToUsers, unassignDevicesFromUsers,updateAndResendMonitoringRequest, deleteMonitoringRequest } = require('../controller/admin.controller');
 const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticación y chequeo de rol
 
 // Registro de administrador
@@ -14,6 +14,12 @@ router.post('/admin/:adminId/addUser', protect, addUserForAdmin);
 
 // Ruta para enviar solicitud de monitoreo
 router.post('/sendMonitoringRequest', protect, sendMonitoringRequest);
+
+// Ruta para actualizar y reenviar una solicitud de monitoreo
+router.put('/monitoring-requests/:requestId/resend', protect, updateAndResendMonitoringRequest);
+
+// Ruta para eliminar una solicitud de monitoreo
+router.delete('/monitoring-requests/:requestId', protect, deleteMonitoringRequest);
 
 router.post('/devices', protect, addDevice);
 

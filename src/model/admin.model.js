@@ -30,7 +30,7 @@ const adminSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    profilePictureUrl: {
+    profilePictureId: {
         type: String,
     },
     role: {

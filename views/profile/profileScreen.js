@@ -19,13 +19,13 @@ const ProfileScreen = ({ navigation }) => {
                   return;
               }
         
-              const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`; // Construye el endpoint con el userId
+              const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`;
 
               try {
                 const response = await fetch(endpoint, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${userToken}`, // Asumiendo un esquema de autenticación Bearer
+                        'Authorization': `Bearer ${userToken}`, 
                     },
                 });
 
@@ -47,7 +47,7 @@ const ProfileScreen = ({ navigation }) => {
         }, []);
 
         if (loading) {
-            return <ActivityIndicator />; // Muestra un indicador de carga mientras se obtienen los datos
+            return <ActivityIndicator />;
         }
 
         if (!userData) {
@@ -87,8 +87,8 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.statLabel}>Rol</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={styles.statNumber}>{userData.email}</Text>
-                <Text style={styles.statLabel}>Board created</Text>
+                <Text style={styles.statNumber}>{userData.firstName} {userData.lastName}</Text>
+                <Text style={styles.statLabel}>Usuario</Text>
               </View>
             </View>
             <View style={styles.balanceContainer}>
@@ -114,7 +114,7 @@ const ProfileScreen = ({ navigation }) => {
               <MenuItem
                 icon="edit"
                 text="Editar Perfil"
-                onPress={() => navigation.navigate('Api')}
+                onPress={() => navigation.navigate('EditProfile')}
               />
               <MenuItem
                 icon="star"
@@ -122,9 +122,9 @@ const ProfileScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('AdminDashboard')}
               />
               <MenuItem
-                icon="cog"
-                text="Settings"
-                onPress={() => navigation.navigate('SettingsScreen')}
+                icon="send"
+                text="Solicitudes"
+                onPress={() => navigation.navigate('Request')}
               />
             </View>
             <TouchableOpacity
@@ -132,7 +132,7 @@ const ProfileScreen = ({ navigation }) => {
               onPress={async () => {
                 await AsyncStorage.removeItem('userToken');
                 // Otras acciones de limpieza de estado aquí si es necesario
-                navigation.navigate('LoginScreen'); // Asegúrate de que 'LoginScreen' sea una ruta válida
+                navigation.navigate('HomeStack'); // Asegúrate de que 'LoginScreen' sea una ruta válida
               }}
             >
               <MaterialIcons name="logout" size={24} color="red" />

@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get("window").width; // Obtener el ancho de la pantalla para el gráfico
 
-const categories = ['ALL', 'GAS', 'ULTRASONICO', 'TEMPERATURA', 'HUMEDAD'];
+const categories = ['ALL', 'GAS', 'ULTRASONICO', 'TEMPERATURA', 'HUMEDAD',];
 
 const GraphicScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -42,14 +42,16 @@ const GraphicScreen = ({ navigation }) => {
 
           let mappedSensorType = '';
           switch(sensorType.toUpperCase()) {
-            case 'GAS': mappedSensorType = 'gasDetector'; break;
-            case 'ULTRASONICO': mappedSensorType = 'ultrasonic'; break;
-            case 'TEMPERATURA': mappedSensorType = 'temperature'; break;
-            case 'HUMEDAD': mappedSensorType = 'humidity'; break;
-            default: throw new Error('Tipo de sensor no reconocido: ' + sensorType);
+              case 'GAS': mappedSensorType = 'gasDetector'; console.log(mappedSensorType); break;
+              case 'ULTRASONICO': mappedSensorType = 'ultrasonic'; console.log(mappedSensorType); break;
+              case 'TEMPERATURA': mappedSensorType = 'temperature'; break;
+              case 'HUMEDAD': mappedSensorType = 'humidity'; console.log(mappedSensorType); break;
+              default: throw new Error('Tipo de sensor no reconocido: ' + sensorType);
           }
 
+
           const endpoint2 = `http://${global.ipDireccion}:3000/api/devices/${deviceId}/sensors/${mappedSensorType}/data`;
+          console.log(endpoint2)
           const sensorDataResponse = await fetch(endpoint2, { method: 'GET', headers });
           const sensorData = await sensorDataResponse.json();
 
@@ -106,8 +108,8 @@ const GraphicScreen = ({ navigation }) => {
           case 'TEMPERATURA':
             values = sensorData.map(item => item.temperature);
             break;
-            case 'HUMEDAD':
-            values = sensorData.map(item => item.temperature);
+          case 'HUMEDAD':
+            values = sensorData.map(item => item.humidity);
             break;
           default:
             values = [];

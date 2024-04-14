@@ -114,18 +114,19 @@ import styles from './requesScreen.styles';
           <Text style={styles.title}> Lista de solicitudes</Text>
         </View>
         <FlatList
-        data={requests}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <RequestProcessor
-            request={item}
-            adminEmail={adminEmail} // Pasando el email del admin a cada RequestProcessor
-            onUpdate={handleRefresh} // Aquí pasas el callback para actualizar
-            onDelete={handleRefresh} // Aquí pasas el callback para actualizar
-          />
-        )}
-        style={styles.list}
-      />
+  data={requests}
+  keyExtractor={(item) => item._id.toString()} // Make sure `_id` is a string
+  renderItem={({ item }) => (
+    <RequestProcessor
+      request={item}
+      adminEmail={adminEmail}
+      onUpdate={handleRefresh}
+      onDelete={handleRefresh}
+    />
+  )}
+  style={styles.list}
+/>
+
 
 
       {/* Modal para añadir nueva solicitud */}

@@ -4,7 +4,7 @@ import { Feather, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@ex
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import styles from './profileScreen.styles';
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreenUser = ({ navigation }) => {
 
         const [userData, setUserData] = useState(null);
         const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ const ProfileScreen = ({ navigation }) => {
                   return;
               }
         
-              const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`;
+              const endpoint = `http://${global.ipDireccion}:3000/api/users/${userId}`;
 
               try {
                 const response = await fetch(endpoint, {
@@ -53,16 +53,6 @@ const ProfileScreen = ({ navigation }) => {
         if (!userData) {
             return <Text>No se pudo obtener los datos del usuario.</Text>; // Manejo de estado sin datos
         }
-
-    /* const userData = {
-        name: 'EMMA',
-        designsPosted: 104,
-        boardsCreated: 12,
-        balance: 2084,
-        orders: 14,
-        phoneNumber: '(581) 305-6789',
-        email: 'emma.terrain@gmail.com',
-      }; */
     
       return (
         <SafeAreaView style={styles.container}>
@@ -74,7 +64,7 @@ const ProfileScreen = ({ navigation }) => {
             <View style={styles.profileContainer}>
               <Image source={require('../../assets/images/yo.jpg' )} style={styles.profilePic} />
               <Text style={styles.profileName}>{userData.name}</Text>
-              <TouchableOpacity style={styles.followButton} onPress={() => navigation.navigate('AddDevice')}>
+              <TouchableOpacity style={styles.followButton} onPress={() => navigation.navigate('Graphic')}>
                 <FontAwesome name="plus" size={14} color="white" />
                 <Text style={styles.followButtonText}>Añadir Dispositivo</Text>
               </TouchableOpacity>
@@ -92,19 +82,14 @@ const ProfileScreen = ({ navigation }) => {
               </View>
             </View>
             <View style={styles.balanceContainer}>
-              <Text style={styles.balanceAmount}>Monitores #: {userData.sentMonitoringRequests.length}</Text>
-              <Text style={styles.balanceOrders}>Pendientes: {userData.sentMonitoringRequests.filter(request => request.status === 'pending').length}</Text>
+              <Text style={styles.balanceAmount}>Monitores #: {userData.monitoringRequests.length}</Text>
+              <Text style={styles.balanceOrders}>Pendientes: {userData.monitoringRequests.filter(request => request.status === 'pending').length}</Text>
             </View>
             <View style={styles.menuContainer}>
               <MenuItem
                 icon="heart"
                 text="Graficas"
-                onPress={() => navigation.navigate('Graphic')} // Asegúrate de que 'FavoritesScreen' sea una ruta válida en tu configurador de navegación
-              />
-              <MenuItem
-                icon="credit-card"
-                text="Ajustar"
-                onPress={() => navigation.navigate('EditParameters')}
+                onPress={() => navigation.navigate('Graphic')}
               />
               <MenuItem
                 icon="gift"
@@ -118,7 +103,7 @@ const ProfileScreen = ({ navigation }) => {
               />
               <MenuItem
                 icon="star"
-                text="Gestionar monitores"
+                text="Gestionar administradores"
                 onPress={() => navigation.navigate('AdminDashboard')}
               />
               <MenuItem
@@ -131,8 +116,7 @@ const ProfileScreen = ({ navigation }) => {
               style={styles.logoutContainer}
               onPress={async () => {
                 await AsyncStorage.removeItem('userToken');
-                // Otras acciones de limpieza de estado aquí si es necesario
-                navigation.navigate('HomeStack'); // Asegúrate de que 'LoginScreen' sea una ruta válida
+                navigation.navigate('HomeStack'); 
               }}
             >
               <MaterialIcons name="logout" size={24} color="red" />
@@ -151,4 +135,4 @@ const ProfileScreen = ({ navigation }) => {
       </TouchableOpacity>
     );    
 
-export default ProfileScreen;
+export default ProfileScreenUser;

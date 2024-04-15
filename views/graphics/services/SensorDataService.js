@@ -70,9 +70,6 @@ export const validateSensorData = (sensorData, sensorType) => {
   return validatedData;
 };
 
-
-
-
 export const fetchDataForSensor = async (sensorType = 'ALL', setGraphData, setIsLoading, setError) => {
   setIsLoading(true);
   setError('');
@@ -85,17 +82,26 @@ export const fetchDataForSensor = async (sensorType = 'ALL', setGraphData, setIs
       sensorTypes = [sensorTypes];
     }
 
+    console.log('Fetching data for sensors:', sensorTypes);
+
     let allChartData = {};
     for (const type of sensorTypes) {
       const endpoint = `http://${global.ipDireccion}:3000/api/devices/${deviceId}/sensors/${type}/data`;
       const headers = { Authorization: `Bearer ${userToken}` };
+      console.log('Request URL:', endpoint);
+      
       const response = await fetch(endpoint, { method: 'GET', headers });
       const data = await response.json();
+      
+      console.log('Response for', type, ':', data);
+      
       if (!response.ok) throw new Error(data.message || `Failed to fetch data for sensor: ${type}`);
-      console.log('Raw sensor data:', data);
+      
       const validatedData = validateSensorData(data, type);
       if (validatedData.length === 0) continue; // Skip if no valid data
+
       allChartData[type] = getChartData(validatedData, type); // Transform data for chart
+      console.log('Chart data prepared for', type, ':', allChartData[type]);
     }
 
     if (Object.keys(allChartData).length === 0) {
@@ -103,6 +109,7 @@ export const fetchDataForSensor = async (sensorType = 'ALL', setGraphData, setIs
     }
     
     console.log("data recibida despues de getChartData",allChartData);
+    console.log("Final data structure before setGraphData:", JSON.stringify(allChartData));
     setGraphData(allChartData);
   } catch (error) {
     console.error('Error fetching data:', error);

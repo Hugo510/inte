@@ -82,9 +82,8 @@ const getChartData = (sensorData, sensorType) => {
     
     let labels = filteredData.map(item => new Date(item.timestamp).toLocaleTimeString('en-US', { hour12: false }));
 
-    console.log("Filtered data:", filteredData);
-    console.log("Data array for dataset:", values);
-    console.log("Labels for chart:", labels);
+    console.log("Filtered data:", JSON.stringify(filteredData));
+    console.log("Prepared data for chart. Labels:", labels, "Data:", values);
 
 
     return {

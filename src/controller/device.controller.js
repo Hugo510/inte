@@ -246,22 +246,92 @@ const saveSensorAlert = async (req, res) => {
 
 
 const getSensorAlerts = async (req, res) => {
-    const { deviceId, sensorType } = req.params; // sensorType debe ser uno de 'gasDetector', 'ultrasonic', 'temperature'
+    const { deviceId, sensorType } = req.params;
+
+    if (!['gasDetector', 'ultrasonic', 'temperature', 'humidity', 'smoke'].includes(sensorType)) {
+        return res.status(400).send({ message: `Invalid sensor type: ${sensorType}` });
+    }
+
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).send({ message: 'Device not found' });
+        }
+
+        const sensorAlerts = device.sensors[sensorType]?.alerts;
+        if (!sensorAlerts) {
+            return res.status(404).send({ message: `No alerts found for sensor type: ${sensorType}` });
+        }
+
+        res.json(sensorAlerts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Error getting sensor alerts', details: error.message });
+    }
+};
+
+
+// Obtener parámetros del sensor
+const getSensorParameters = async (req, res) => {
+    const { deviceId, sensorType } = req.params;
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device || !device.sensors[sensorType].parameters) {
+            return res.status(404).send('Sensor parameters not found');
+        }
+        res.json(device.sensors[sensorType].parameters);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error getting sensor parameters');
+    }
+};
+
+const getAllSensorParameters = async (req, res) => {
+    const { deviceId } = req.params;
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).send('Device not found');
+        }
+        // Convertimos el documento Mongoose a un objeto JavaScript simple
+        const deviceObject = device.toObject();
+        // Recolectamos los parámetros de todos los sensores disponibles en el dispositivo
+        const sensorsParameters = {};
+        for (const sensorType in deviceObject.sensors) {
+            if (deviceObject.sensors[sensorType].parameters) {
+                sensorsParameters[sensorType] = deviceObject.sensors[sensorType].parameters;
+            } else {
+                // Manejar el caso donde el sensor está definido pero no tiene parámetros
+                console.log(`Sensor ${sensorType} está definido pero no tiene parámetros.`);
+            }
+        }
+        res.json(sensorsParameters);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error getting sensor parameters');
+    }
+};
+
+
+
+// Actualizar parámetros del sensor
+const updateSensorParameters = async (req, res) => {
+    const { deviceId, sensorType } = req.params;
+    const parameters = req.body; // Asume que el cuerpo de la solicitud contiene los nuevos parámetros
 
     try {
         const device = await Device.findById(deviceId);
         if (!device) {
             return res.status(404).send('Device not found');
         }
-
-        const sensorAlerts = device.sensors[sensorType].alerts;
-        res.json(sensorAlerts);
+        Object.assign(device.sensors[sensorType].parameters, parameters);
+        await device.save();
+        res.json({ message: 'Sensor parameters updated successfully', parameters: device.sensors[sensorType].parameters });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error getting sensor alerts');
+        res.status(500).send('Error updating sensor parameters');
     }
 };
-
 
 
 module.exports = {
@@ -276,5 +346,8 @@ module.exports = {
     saveGraphicScreenMessage,
     loadGraphicScreenMessages,
     saveSensorAlert,
-    getSensorAlerts
+    getSensorAlerts,
+    getSensorParameters,
+    updateSensorParameters,
+    getAllSensorParameters
     };

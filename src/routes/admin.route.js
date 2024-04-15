@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerAdmin, loginAdmin, login, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice, getMonitoringRequestsForAdmin, getUsersForAdmin, assignDevicesToUsers, unassignDevicesFromUsers,updateAndResendMonitoringRequest, deleteMonitoringRequest } = require('../controller/admin.controller');
+const { registerAdmin, loginAdmin, login, getAdmins, getAdminById, updateAdmin, deleteAdmin, addUserForAdmin, sendMonitoringRequest, removeUser, addDevice, deleteDevice , assignUsersToDevice, unassignUsersFromDevice, getMonitoringRequestsForAdmin, getUsersForAdmin, assignDevicesToUsers, unassignDevicesFromUsers,updateAndResendMonitoringRequest, deleteMonitoringRequest, associateDeviceWithAdmin } = require('../controller/admin.controller');
 const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticación y chequeo de rol
 
 // Registro de administrador
@@ -31,7 +31,9 @@ router.post('/devices/:deviceId/unassignUsers', protect, unassignUsersFromDevice
 router.post('/assignDevicesToUsers', protect, assignDevicesToUsers);
 
 // Desasignar dispositivos de usuarios
-router.post('/unassignDevicesFromUsers', protect, unassignDevicesFromUsers)
+router.post('/unassignDevicesFromUsers', protect, unassignDevicesFromUsers);
+
+router.post('/associate-device', protect, associateDeviceWithAdmin);
 
 // Obtener todos los administradores
 router.get('/', getAdmins);

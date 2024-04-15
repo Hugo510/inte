@@ -12,7 +12,10 @@ const {
     saveGraphicScreenMessage,
     loadGraphicScreenMessages,
     saveSensorAlert,
-    getSensorAlerts
+    getSensorAlerts,
+    getSensorParameters,
+    updateSensorParameters,
+    getAllSensorParameters
 } = require('../controller/device.controller');
 
 const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticación
@@ -53,5 +56,14 @@ router.post('/:deviceId/sensors/:sensorType/alerts', saveSensorAlert); // Añade
 
 // Obtener las alertas de un tipo de sensor específico de un dispositivo
 router.get('/:deviceId/sensors/:sensorType/alerts', getSensorAlerts); // Muestra alertas de un tipo de sensor
+
+// Obtener parámetros de sensor para un dispositivo específico
+router.get('/:deviceId/sensors/:sensorType/parameters', getSensorParameters);
+
+// Obtener parámetros de todos los sensores para un dispositivo específico
+router.get('/:deviceId/sensors/parameters', getAllSensorParameters);
+
+// Actualizar parámetros de sensor para un dispositivo específico
+router.put('/:deviceId/sensors/:sensorType/parameters', updateSensorParameters);
 
 module.exports = router;

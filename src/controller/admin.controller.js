@@ -461,6 +461,34 @@ const unassignDevicesFromUsers = async (req, res) => {
   }
 };
 
+const associateDeviceWithAdmin = async (req, res) => {
+  const { deviceId, room } = req.body; // El ID del dispositivo y la room son enviados en el cuerpo de la petición
+  const adminId = req.admin._id; // Asumimos que el ID del admin está disponible en req.user gracias a algún middleware de autenticación
+
+  try {
+    // Verificar que el dispositivo existe
+    const device = await Device.findById(deviceId);
+    if (!device) {
+      return res.status(404).send({ message: 'Dispositivo no encontrado' });
+    }
+
+    // Verificar si el dispositivo ya está asociado a un admin
+    if (device.adminUser) {
+      return res.status(400).send({ message: 'El dispositivo ya está asociado a un administrador.' });
+    }
+
+    // Asociar el dispositivo con el admin y asignar la room
+    device.adminUser = adminId;
+    device.room = room; // Asumimos que el modelo de Device tiene un campo `room` para este propósito
+    await device.save();
+
+    res.status(200).json({ message: 'Dispositivo asociado con éxito al administrador y room asignada.', device });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Error al asociar el dispositivo con el administrador', error: error.message });
+  }
+};
+
 
 
 module.exports = {
@@ -483,5 +511,6 @@ module.exports = {
   getMonitoringRequestsForAdmin,
   getUsersForAdmin,
   assignDevicesToUsers,
-  unassignDevicesFromUsers
+  unassignDevicesFromUsers,
+  associateDeviceWithAdmin
 };

@@ -92,19 +92,14 @@ const ProfileMonitorScreen = ({ navigation }) => {
               </View>
             </View>
             <View style={styles.balanceContainer}>
-              <Text style={styles.balanceAmount}>Monitores #: {userData.sentMonitoringRequests.length}</Text>
-              <Text style={styles.balanceOrders}>Pendientes: {userData.sentMonitoringRequests.filter(request => request.status === 'pending').length}</Text>
+              <Text style={styles.balanceAmount}>Admins #: {userData.monitoringRequests.length}</Text>
+              <Text style={styles.balanceOrders}>Pendientes: {userData.monitoringRequests.filter(request => request.status === 'pending').length}</Text>
             </View>
             <View style={styles.menuContainer}>
               <MenuItem
                 icon="heart"
                 text="Graficas"
                 onPress={() => navigation.navigate('Graphic')} // Asegúrate de que 'FavoritesScreen' sea una ruta válida en tu configurador de navegación
-              />
-              <MenuItem
-                icon="credit-card"
-                text="Ajustar"
-                onPress={() => navigation.navigate('EditParameters')}
               />
               <MenuItem
                 icon="gift"

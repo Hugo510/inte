@@ -14,6 +14,9 @@ import AdminDashboardScreen from '../views/adminDashboard/adminDashboardScreen';
 import EditProfileScreen from '../views/editProfile/editProfileScreen';
 import AddDeviceScreen from '../views/addDevice/addDeviceScreen';
 
+/* ********************************* */
+import ProfileMonitorScreen from '../views/profileMonitor/profileScreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +38,8 @@ const AppNavigator = () => {
         <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="AddDevice" component={AddDeviceScreen} options={{ headerShown: false }}/>
+        {/* *********************************************************************************** */}
+        <Stack.Screen name="ProfileMonitor" component={ProfileMonitorScreen} options={{ headerShown: false }}/>
         {/* Agrega aquí más pantallas si es necesario */}
       </Stack.Navigator>
   );/* EditProfileScreen */

@@ -49,7 +49,7 @@ const LoginScreen = ({ navigation }) => {
                 if (json.role === 'admin') {
                     navigation.navigate('Profile'); // Asume que tienes una pantalla de dashboard para admin
                 } else {
-                    navigation.navigate('ProfileUser'); // Asume que tienes una pantalla para usuarios
+                    navigation.navigate('ProfileMonitor'); // Asume que tienes una pantalla para usuarios
                 }
             } else {
                 const errorMessage = await response.text();

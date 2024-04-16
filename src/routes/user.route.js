@@ -11,7 +11,8 @@ const {
   acceptMonitoringRequest,
   removeAdmin,
   rejectMonitoringRequest,
-  getDevicesForUser
+  getDevicesForUser,
+  getMonitoringRequestsByUserId
 } = require('../controller/user.controller');
 const { protectUser } = require('../middleware/authMiddleware'); // Middleware de autenticación para usuarios
 
@@ -28,6 +29,9 @@ router.post('/acceptMonitoringRequest/:adminId', protectUser, acceptMonitoringRe
 router.post('/removeAdmin', protectUser, removeAdmin); 
 
 router.post('/rejectMonitoringRequest/:adminId', protectUser, rejectMonitoringRequest);
+
+// Ruta para obtener las solicitudes de monitoreo de un usuario por su ID
+router.get('/:userId/monitoring-requests', getMonitoringRequestsByUserId);
 
 // Obtener todos los usuarios
 router.get('/', getUsers); // Depende de si quieres que solo usuarios autenticados puedan ver todos los usuarios

@@ -50,7 +50,7 @@ const adminSchema = new mongoose.Schema({
         deviceId: { // Añadido para especificar a qué dispositivo se refiere la solicitud
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Device',
-            required: false
+            required: true
         },
         status: {
             type: String,
@@ -67,5 +67,23 @@ const adminSchema = new mongoose.Schema({
         required: false // this can be optional because not every user may have a token initially
     }
 });
+
+
+adminSchema.pre('save', function(next) {
+    if (!this.sentMonitoringRequests.every(request => request.userId && request.deviceId)) {
+        next(new Error('Every monitoring request must have both userId and deviceId specified.'));
+    } else {
+        next();
+    }
+});
+
+adminSchema.pre('updateOne', { document: true, query: false }, function(next) {
+    if (this._update.sentMonitoringRequests && !this._update.sentMonitoringRequests.every(request => request.userId && request.deviceId)) {
+        next(new Error('Every monitoring request in update must have both userId and deviceId specified.'));
+    } else {
+        next();
+    }
+});
+
 
 module.exports = mongoose.model('Admin', adminSchema);

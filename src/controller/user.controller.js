@@ -101,22 +101,33 @@ const getUsers = async (req, res) => {
 };
 
 const acceptMonitoringRequest = async (req, res) => {
-  const { adminId } = req.body; // ID del admin que envió la solicitud
-  const userId = req.user._id; // Asume autenticación del usuario
+  const { adminId, requestId } = req.body; // Suponemos que requestId también se pasa para identificar la solicitud específica
 
   try {
-      // Actualizar el estado de la solicitud en el Admin
-      const admin = await Admin.findOneAndUpdate(
-          { "_id": adminId, "sentMonitoringRequests.userId": userId },
-          { "$set": { "sentMonitoringRequests.$.status": 'accepted' } },
-          { new: true }
-      );
-
+      const admin = await Admin.findById(adminId);
       if (!admin) {
-          return res.status(404).send('Administrador no encontrado o solicitud no existe.');
+          return res.status(404).send('Administrador no encontrado.');
       }
 
-      // Opcional: Actualizar el modelo de User para reflejar la aceptación, si es necesario
+      const request = admin.sentMonitoringRequests.id(requestId);
+      if (!request) {
+          return res.status(404).send('Solicitud no encontrada.');
+      }
+
+      if (request.status !== 'pending') {
+          return res.status(400).send('La solicitud no está pendiente.');
+      }
+
+      request.status = 'accepted';
+      await admin.save();
+
+      // Opcional: actualizar el modelo de User
+      const user = await User.findById(request.userId);
+      if (user) {
+          // Suponiendo que hay un campo para reflejar esta relación, por ejemplo 'isMonitored'
+          user.isMonitored = true;
+          await user.save();
+      }
 
       res.status(200).send('Solicitud aceptada correctamente.');
   } catch (error) {
@@ -126,33 +137,27 @@ const acceptMonitoringRequest = async (req, res) => {
 };
 
 
+
+
 const rejectMonitoringRequest = async (req, res) => {
-  const { adminId } = req.body; // ID del admin que envió la solicitud
-  const userId = req.user._id; // Asume autenticación del usuario
+  const { adminId, requestId } = req.body; // Suponemos que requestId también se pasa para identificar la solicitud específica
 
   try {
-      // Encuentra el admin y actualiza el estado de la solicitud a 'rejected'
-      const admin = await Admin.findOne({
-          _id: adminId,
-          'sentMonitoringRequests.userId': userId
-      });
-
+      const admin = await Admin.findById(adminId);
       if (!admin) {
           return res.status(404).send('Administrador no encontrado.');
       }
 
-      // Busca la solicitud específica y actualiza su estado a 'rejected'
-      const requestIndex = admin.sentMonitoringRequests.findIndex(request => request.userId.equals(userId));
-      if (requestIndex === -1) {
+      const request = admin.sentMonitoringRequests.id(requestId);
+      if (!request) {
           return res.status(404).send('Solicitud no encontrada.');
       }
 
-      // Asegurándose de que la solicitud no haya sido previamente aceptada o rechazada
-      if (admin.sentMonitoringRequests[requestIndex].status !== 'pending') {
-          return res.status(400).send('La solicitud ya ha sido procesada.');
+      if (request.status !== 'pending') {
+          return res.status(400).send('La solicitud no está pendiente.');
       }
 
-      admin.sentMonitoringRequests[requestIndex].status = 'rejected';
+      request.status = 'rejected';
       await admin.save();
 
       res.status(200).send('Solicitud de monitoreo rechazada correctamente.');
@@ -161,32 +166,58 @@ const rejectMonitoringRequest = async (req, res) => {
       res.status(500).send('Error al rechazar la solicitud de monitoreo.');
   }
 };
+
+
 const removeAdmin = async (req, res) => {
   const userId = req.user._id; // Asume autenticación y que tienes el ID del usuario
-    const { adminId } = req.body; // El ID del admin a eliminar
+  const { adminId } = req.body; // El ID del admin a eliminar
 
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).send('Usuario no encontrado.');
-        }
+  try {
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).send('Usuario no encontrado.');
+      }
 
-        // Eliminar la solicitud o la asociación con el admin
-        const index = user.monitoringRequests.findIndex(request => request.adminId.equals(adminId));
-        if (index !== -1) {
-            user.monitoringRequests.splice(index, 1); // Eliminar la solicitud
-            await user.save();
-        }
+      const request = user.monitoringRequests.find(request => request.adminId.equals(adminId));
+      if (!request) {
+          return res.status(404).send('No hay solicitudes de este administrador.');
+      }
 
-        // Opcionalmente, actualizar el Admin para reflejar esta eliminación
-        await Admin.findByIdAndUpdate(adminId, { $pull: { monitoredUsers: userId } });
+      user.monitoringRequests.pull(request._id); // Eliminar la solicitud
+      await user.save();
 
-        res.status(200).json({ message: 'Administrador eliminado de las solicitudes de monitoreo' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error al eliminar la asociación con el administrador.');
-    }
+      res.status(200).json({ message: 'Administrador eliminado de las solicitudes de monitoreo' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al eliminar la asociación con el administrador.');
+  }
 };
+
+
+const getMonitoringRequestsByUserId = async (req, res) => {
+  const { userId } = req.params;  // Obtener el ID del usuario desde los parámetros de la ruta
+
+  try {
+      const user = await User.findById(userId).populate({
+          path: 'monitoringRequests.adminId',  // Popular los detalles del administrador que envió la solicitud
+          select: 'name email'  // Seleccionar solo nombre y email del admin para mostrar
+      }).populate({
+          path: 'monitoringRequests.deviceId',  // También popular los detalles del dispositivo
+          select: 'deviceName location'  // Seleccionar nombre y ubicación del dispositivo
+      });
+
+      if (!user) {
+          return res.status(404).send('Usuario no encontrado.');
+      }
+
+      // Retornar las solicitudes de monitoreo del usuario
+      res.status(200).json({ monitoringRequests: user.monitoringRequests });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Error al obtener las solicitudes de monitoreo para el usuario', error: error.message });
+  }
+};
+
 
 const getDevicesForUser = async (req, res) => {
   const { userId } = req.user; // Asume autenticación y autorización
@@ -212,6 +243,7 @@ module.exports = {
   rejectMonitoringRequest,
   acceptMonitoringRequest,
   removeAdmin,
-  getDevicesForUser
+  getDevicesForUser,
+  getMonitoringRequestsByUserId
 };
 

@@ -154,25 +154,29 @@ const addUserForAdmin = async (req, res) => {
 };
 
 const sendMonitoringRequest = async (req, res) => {
-  const { userEmail } = req.body; // Utiliza el correo electrónico en lugar del ID
-  const adminId = req.user._id; // Se asume la autenticación previa
+  const { userEmail, deviceId } = req.body; // Incluir deviceId en la solicitud
+  const adminId = req.user._id; // Asumir autenticación previa
 
   try {
-      // Buscar al usuario por correo electrónico para obtener su ID
       const user = await User.findOne({ email: userEmail });
       if (!user) {
           return res.status(404).send('Usuario no encontrado.');
       }
 
-      // Añadir la solicitud de monitoreo al admin
-      const admin = await Admin.findById(adminId);
-      const alreadyRequested = admin.sentMonitoringRequests.some(request => request.userId.equals(user._id));
-
-      if (alreadyRequested) {
-          return res.status(400).send('La solicitud ya fue enviada a este usuario.');
+      const device = await Device.findById(deviceId);
+      if (!device) {
+          return res.status(404).send('Dispositivo no encontrado.');
       }
 
-      admin.sentMonitoringRequests.push({ userId: user._id, status: 'pending' });
+      const admin = await Admin.findById(adminId);
+      const alreadyRequested = admin.sentMonitoringRequests.some(request =>
+          request.userId.equals(user._id) && request.deviceId.equals(deviceId));
+
+      if (alreadyRequested) {
+          return res.status(400).send('La solicitud ya fue enviada a este usuario para este dispositivo.');
+      }
+
+      admin.sentMonitoringRequests.push({ userId: user._id, deviceId: device._id, status: 'pending' });
       await admin.save();
 
       res.status(200).send('Solicitud de monitoreo enviada correctamente.');
@@ -182,38 +186,55 @@ const sendMonitoringRequest = async (req, res) => {
   }
 };
 
+
 const updateAndResendMonitoringRequest = async (req, res) => {
-  // Supongamos que este endpoint recibe el newEmail y requestId en el body
   const { newEmail, requestId } = req.body;
 
   try {
-    const adminId = req.user._id;
+    const adminId = req.user._id; // Se asume la autenticación previa
     const admin = await Admin.findById(adminId);
-    if (!admin) return res.status(404).send('Admin no encontrado.');
+    if (!admin) {
+      console.log("Admin no encontrado.");
+      return res.status(404).send('Admin no encontrado.');
+    }
 
-    // Encuentra y actualiza la solicitud de monitoreo con el nuevo correo electrónico
-    const requestIndex = admin.sentMonitoringRequests.findIndex(request => request._id.equals(requestId));
-    if (requestIndex === -1) return res.status(404).send('Solicitud de monitoreo no encontrada.');
+    // Encuentra la solicitud de monitoreo y verifica su estado
+    const request = admin.sentMonitoringRequests.id(requestId);
+    if (!request) {
+      console.log("Solicitud de monitoreo no encontrada.");
+      return res.status(404).send('Solicitud de monitoreo no encontrada.');
+    }
 
-    // Verificar si el nuevo correo ya tiene una solicitud pendiente o aceptada
+    // Permitir reenvío solo si la solicitud está 'rejected' o 'pending'
+    if (['rejected', 'pending'].indexOf(request.status) === -1) {
+      console.log("La solicitud no está en un estado que permita reenvío.");
+      return res.status(400).send('La solicitud no está en un estado que permita reenvío.');
+    }
+
+    // Verificar el nuevo usuario y dispositivo asociado
     const user = await User.findOne({ email: newEmail });
-    if (!user) return res.status(404).send('Nuevo usuario no encontrado.');
+    if (!user) {
+      console.log("Nuevo usuario no encontrado.");
+      return res.status(404).send('Nuevo usuario no encontrado.');
+    }
 
-    const alreadyRequested = admin.sentMonitoringRequests.some(request => request.userId.equals(user._id));
-    if (alreadyRequested) return res.status(400).send('La solicitud ya fue enviada a este nuevo usuario.');
+    if (admin.sentMonitoringRequests.some(r => r.userId.equals(user._id) && r.deviceId.equals(request.deviceId) && r.status !== 'rejected')) {
+      console.log("La solicitud ya fue enviada a este nuevo usuario con el mismo dispositivo y no está rechazada.");
+      return res.status(400).send('La solicitud ya fue enviada a este nuevo usuario para este dispositivo y no está rechazada.');
+    }
 
-    // Aquí se modifica el objeto req para simular un nuevo request
-    req.body = { userEmail: newEmail }; // Actualizar el body para reenviar la solicitud
-    req.user._id = adminId; // Asegurar que el ID del admin esté presente
+    // Actualiza la solicitud de monitoreo existente
+    request.userId = user._id; // Cambia el usuario
+    request.status = 'pending'; // Restablece el estado a 'pending'
+    await admin.save();
 
-    // Llamar a sendMonitoringRequest indirectamente
-    await sendMonitoringRequest(req, res);
+    console.log("Solicitud de monitoreo actualizada y reenviada correctamente.");
+    res.status(200).send('Solicitud de monitoreo actualizada y reenviada correctamente.');
   } catch (error) {
-    console.error(error);
+    console.error("Error al actualizar y reenviar la solicitud de monitoreo: ", error);
     res.status(500).send('Error al actualizar y reenviar la solicitud de monitoreo.');
   }
 };
-
 
 
 

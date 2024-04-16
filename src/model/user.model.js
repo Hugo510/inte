@@ -78,6 +78,23 @@ userSchema.pre('save', async function(next) {
     }
 });
 
+userSchema.pre('save', function(next) {
+    if (!this.monitoringRequests.every(request => request.adminId && request.deviceId)) {
+        next(new Error('Every monitoring request must have both adminId and deviceId specified.'));
+    } else {
+        next();
+    }
+});
+
+userSchema.pre('updateOne', { document: true, query: false }, function(next) {
+    if (this._update.monitoringRequests && !this._update.monitoringRequests.every(request => request.adminId && request.deviceId)) {
+        next(new Error('Every monitoring request in update must have both adminId and deviceId specified.'));
+    } else {
+        next();
+    }
+});
+
+
 // Método para comparar contraseñas (útil para autenticación)
 userSchema.methods.comparePassword = function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);

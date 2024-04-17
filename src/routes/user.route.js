@@ -12,7 +12,10 @@ const {
   removeAdmin,
   rejectMonitoringRequest,
   getDevicesForUser,
-  getMonitoringRequestsByUserId
+  getAdminsForUser,
+  getMonitoringRequestsByUserId,
+  dissociateFromDevice,
+  dissociateFromAdmin,
 } = require('../controller/user.controller');
 const { protectUser } = require('../middleware/authMiddleware'); // Middleware de autenticación para usuarios
 
@@ -20,32 +23,42 @@ const { protectUser } = require('../middleware/authMiddleware'); // Middleware d
 router.post('/register', registerUser);
 
 // Inicio de sesión de usuario
-router.post('/login', login);
+router.post('/login', loginUser); // Corrección para usar la función correcta
 
-// Las siguientes rutas requieren que el usuario esté autenticado
-router.post('/acceptMonitoringRequest/:adminId', protectUser, acceptMonitoringRequest);
+// Aceptar una solicitud de monitoreo
+router.post('/acceptMonitoringRequest/:adminId/:requestId', protectUser, acceptMonitoringRequest);
 
-// Asumiendo que necesitas especificar qué admin remover
-router.post('/removeAdmin', protectUser, removeAdmin); 
+// Rechazar una solicitud de monitoreo
+router.post('/rejectMonitoringRequest/:adminId/:requestId', protectUser, rejectMonitoringRequest);
 
-router.post('/rejectMonitoringRequest/:adminId', protectUser, rejectMonitoringRequest);
+// Eliminar un administrador
+router.delete('/removeAdmin/:adminId', protectUser, removeAdmin); // Cambiado a DELETE y añadido adminId como parámetro de ruta
 
 // Ruta para obtener las solicitudes de monitoreo de un usuario por su ID
-router.get('/:userId/monitoring-requests', getMonitoringRequestsByUserId);
+router.get('/:userId/monitoring-requests', protectUser, getMonitoringRequestsByUserId);
 
 // Obtener todos los usuarios
-router.get('/', getUsers); // Depende de si quieres que solo usuarios autenticados puedan ver todos los usuarios
+router.get('/', protectUser, getUsers); // Asegurando protección para esta ruta también
 
 // Obtener un usuario por ID
 router.get('/:id', protectUser, getUserById);
 
-// Obtener dispositivos para el usuario
+// Obtener dispositivos asociados al usuario
 router.get('/devices', protectUser, getDevicesForUser);
+
+// Obtener administradores asociados al usuario
+router.get('/admins', protectUser, getAdminsForUser);
 
 // Actualizar un usuario
 router.put('/:id', protectUser, updateUser);
 
 // Eliminar un usuario
 router.delete('/:id', protectUser, deleteUser);
+
+// Desasociarse de un dispositivo
+router.delete('/dissociateDevice/:deviceId', protectUser, dissociateFromDevice); // Cambiado a DELETE y añadido deviceId como parámetro de ruta
+
+// Desasociarse de un administrador
+router.delete('/dissociateAdmin/:adminId', protectUser, dissociateFromAdmin); // Cambiado a DELETE y añadido adminId como parámetro de ruta
 
 module.exports = router;

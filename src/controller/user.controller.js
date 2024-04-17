@@ -137,8 +137,6 @@ const acceptMonitoringRequest = async (req, res) => {
 };
 
 
-
-
 const rejectMonitoringRequest = async (req, res) => {
   const { adminId, requestId } = req.body; // Suponemos que requestId también se pasa para identificar la solicitud específica
 
@@ -220,7 +218,7 @@ const getMonitoringRequestsByUserId = async (req, res) => {
 
 
 const getDevicesForUser = async (req, res) => {
-  const { userId } = req.user; // Asume autenticación y autorización
+  const { userId } = req.user; // Asume autenticación y que tienes el ID del usuario
 
   try {
       const devices = await Device.find({ monitoredUsers: userId }).populate('adminUser', 'email');
@@ -230,6 +228,65 @@ const getDevicesForUser = async (req, res) => {
   }
 };
 
+const getAdminsForUser = async (req, res) => {
+  const { userId } = req.user; // Asume autenticación y que tienes el ID del usuario
+
+  try {
+      const user = await User.findById(userId).populate({
+          path: 'monitoringRequests.adminId',
+          select: 'firstName lastName email' // Seleccionar los detalles relevantes del admin
+      });
+
+      if (!user) {
+          return res.status(404).send('Usuario no encontrado.');
+      }
+
+      const admins = user.monitoringRequests.map(request => request.adminId);
+      res.status(200).json({ admins });
+  } catch (error) {
+      res.status(500).send({ message: 'Error al obtener administradores para el usuario', error: error.message });
+  }
+};
+
+const dissociateFromAdmin = async (req, res) => {
+  const userId = req.user._id; // Asume autenticación y que tienes el ID del usuario
+  const { adminId } = req.params; // El ID del admin se obtiene de los parámetros de la ruta
+
+  try {
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).send('Usuario no encontrado.');
+      }
+
+      // Filtrar y remover todas las solicitudes de monitoreo asociadas con el administrador especificado
+      user.monitoringRequests = user.monitoringRequests.filter(request => !request.adminId.equals(adminId));
+      await user.save();
+
+      res.status(200).json({ message: 'Administrador desasociado correctamente.' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al desasociar al administrador.');
+  }
+};
+
+const dissociateFromDevice = async (req, res) => {
+  const userId = req.user._id; // Asume autenticación y que tienes el ID del usuario
+  const { deviceId } = req.params; // El ID del dispositivo se obtiene de los parámetros de la ruta
+
+  try {
+      // Eliminar la referencia del usuario del dispositivo especificado
+      const updatedDevice = await Device.findByIdAndUpdate(deviceId, { $pull: { monitoredUsers: userId } }, { new: true });
+
+      if (!updatedDevice) {
+          return res.status(404).send('Dispositivo no encontrado.');
+      }
+
+      res.status(200).json({ message: 'Desasociado del dispositivo correctamente.' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al desasociar del dispositivo.');
+  }
+};
 
 
 module.exports = {
@@ -244,6 +301,9 @@ module.exports = {
   acceptMonitoringRequest,
   removeAdmin,
   getDevicesForUser,
-  getMonitoringRequestsByUserId
+  getAdminsForUser,
+  getMonitoringRequestsByUserId,
+  dissociateFromAdmin,
+  dissociateFromDevice
 };
 

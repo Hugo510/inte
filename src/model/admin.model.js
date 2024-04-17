@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+const Device = require('./device.model.js'); 
+const User = require('./user.model.js'); 
+
 const adminSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -82,6 +85,47 @@ adminSchema.pre('updateOne', { document: true, query: false }, function(next) {
         next(new Error('Every monitoring request in update must have both userId and deviceId specified.'));
     } else {
         next();
+    }
+});
+
+adminSchema.pre('save', async function(next) {
+    try {
+        // Verifica que cada userId referenciado exista
+        for (let request of this.sentMonitoringRequests) {
+            const userExists = await User.exists({ _id: request.userId });
+            if (!userExists) {
+                return next(new Error('User ID referenced does not exist'));
+            }
+
+            const deviceExists = await Device.exists({ _id: request.deviceId });
+            if (!deviceExists) {
+                return next(new Error('Device ID referenced does not exist'));
+            }
+        }
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+adminSchema.pre('updateOne', { document: true, query: false }, async function(next) {
+    try {
+        if (this._update.sentMonitoringRequests) {
+            for (let request of this._update.sentMonitoringRequests) {
+                const userExists = await User.exists({ _id: request.userId });
+                if (!userExists) {
+                    return next(new Error('User ID referenced does not exist'));
+                }
+
+                const deviceExists = await Device.exists({ _id: request.deviceId });
+                if (!deviceExists) {
+                    return next(new Error('Device ID referenced does not exist'));
+                }
+            }
+        }
+        next();
+    } catch (err) {
+        next(err);
     }
 });
 

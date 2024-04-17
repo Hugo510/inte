@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const SALT_WORK_FACTOR = 10;
 
+const Device = require('./device.model.js'); 
+const Admin = require('./admin.model.js'); 
+
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -93,6 +96,49 @@ userSchema.pre('updateOne', { document: true, query: false }, function(next) {
         next();
     }
 });
+
+
+userSchema.pre('save', async function(next) {
+    try {
+        // Verifica que cada adminId referenciado exista
+        for (let request of this.monitoringRequests) {
+            const adminExists = await Admin.exists({ _id: request.adminId });
+            if (!adminExists) {
+                return next(new Error('Admin ID referenced does not exist'));
+            }
+
+            const deviceExists = await Device.exists({ _id: request.deviceId });
+            if (!deviceExists) {
+                return next(new Error('Device ID referenced does not exist'));
+            }
+        }
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+userSchema.pre('updateOne', { document: true, query: false }, async function(next) {
+    try {
+        if (this._update.monitoringRequests) {
+            for (let request of this._update.monitoringRequests) {
+                const adminExists = await Admin.exists({ _id: request.adminId });
+                if (!adminExists) {
+                    return next(new Error('Admin ID referenced does not exist'));
+                }
+
+                const deviceExists = await Device.exists({ _id: request.deviceId });
+                if (!deviceExists) {
+                    return next(new Error('Device ID referenced does not exist'));
+                }
+            }
+        }
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
 
 
 // Método para comparar contraseñas (útil para autenticación)

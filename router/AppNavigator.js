@@ -16,7 +16,7 @@ import AddDeviceScreen from '../views/addDevice/addDeviceScreen';
 
 /* ********************************* */
 import ProfileMonitorScreen from '../views/profileMonitor/profileScreen';
-
+import RequestsMonitorScreen from '../views/requestMonitor/requesScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +40,7 @@ const AppNavigator = () => {
         <Stack.Screen name="AddDevice" component={AddDeviceScreen} options={{ headerShown: false }}/>
         {/* *********************************************************************************** */}
         <Stack.Screen name="ProfileMonitor" component={ProfileMonitorScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="RequestMonitor" component={RequestsMonitorScreen} options={{ headerShown: false }}/>
         {/* Agrega aquí más pantallas si es necesario */}
       </Stack.Navigator>
   );/* EditProfileScreen */

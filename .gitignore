@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Package lock
+package-lock.json
+
+# Otros archivos y directorios
+components/
+helpers/
+router/
+services/
+styles/
+views/

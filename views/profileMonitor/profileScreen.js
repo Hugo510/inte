@@ -20,7 +20,7 @@ const ProfileMonitorScreen = ({ navigation }) => {
                 return;
             }
 
-            const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`;
+            const endpoint = `http://${global.ipDireccion}:3000/api/users/${userId}`;
             try {
                 const response = await fetch(endpoint, {
                     headers: {
@@ -30,6 +30,7 @@ const ProfileMonitorScreen = ({ navigation }) => {
 
                 if (response.ok) {
                     const json = await response.json();
+                    console.log(json)
                     setUserData(json);
                 } else {
                     const errorMessage = await response.text();
@@ -85,7 +86,31 @@ const ProfileMonitorScreen = ({ navigation }) => {
                     <Text style={styles.balanceOrders}>Pending: {userData.monitoringRequests.filter(request => request.status === 'pending').length}</Text>
                 </View>
                 <View style={styles.menuContainer}>
-                    {/* Additional Menu Items Here */}
+                <MenuItem
+                icon="heart"
+                text="Graficas"
+                onPress={() => navigation.navigate('Graphic')} // Asegúrate de que 'FavoritesScreen' sea una ruta válida en tu configurador de navegación
+              />
+              <MenuItem
+                icon="gift"
+                text="Cards"
+                onPress={() => navigation.navigate('Cards')}
+              />
+              <MenuItem
+                icon="edit"
+                text="Editar Perfil"
+                onPress={() => navigation.navigate('EditProfile')}
+              />
+              <MenuItem
+                icon="star"
+                text="Gestionar monitores"
+                onPress={() => navigation.navigate('UserDashboard')}
+              />
+              <MenuItem
+                icon="send"
+                text="Solicitudes"
+                onPress={() => navigation.navigate('RequestMonitor')}
+              />
                 </View>
                 <TouchableOpacity
                     style={styles.logoutContainer}

@@ -5,29 +5,15 @@ import {MaterialIcons } from '@expo/vector-icons';
 import styles from './userDashboardScreen.styles';
 import useDeviceManagement from './hooks/useDeviceManagement';
 import DeviceList from './components/DeviceList';
-import UserList from './components/UserList';
+import UserList from './components/AdminList';
 
 const UserDashboardScreen = () => {
   const {
-    openModal,
-    closeModal,
-    openRequestModal,
-    closeRequestModal,
     devices,
     users,
-    monitoringRequests,
     isLoading,
     loadData,
-    setSelectedDevice,
-    selectedDevice,
-    addDevice,
-    assignDeviceToUser,
-    unassignDeviceFromUser,
-    removeUser,
-    deleteDevice,
-    assignUsersToSelectedDevice,
-    unaAssignUsersToSelectedDevice,
-    // ... (Todas las funciones importadas del hook)
+
   } = useDeviceManagement();
 
     useEffect(() => {

@@ -25,13 +25,20 @@ const EditProfileScreen = ({ navigation }) => {
     const fetchProfileData = async () => {
       const userToken = await AsyncStorage.getItem('userToken');
       const userId = await AsyncStorage.getItem('userId');
-      if (!userToken || !userId) {
-        Alert.alert("Error", "No se encontró el token de autenticación o el ID del usuario.");
+      const userRole = await AsyncStorage.getItem('userRole');
+      if (!userToken || !userId || !userRole) {
+        Alert.alert("Error", "No se encontró el token de autenticación o el ID del usuario o El Rol.");
         setLoading(false);
         return;
       }
 
-      const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`;
+     // Declaración de isAdmin en el ámbito adecuado
+      const isAdmin = userRole === "admin";
+
+      // Uso de isAdmin para seleccionar el endpoint correcto
+      const endpoint = isAdmin ? `http://${global.ipDireccion}:3000/api/admins/${userId}` : `http://${global.ipDireccion}:3000/api/users/${userId}`;
+
+      /* const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`; */
 
       try {
         const response = await fetch(endpoint, {
@@ -83,7 +90,13 @@ const handleChoosePhoto = () => {
   const handleSubmitForm = async (values) => {
     const userToken = await AsyncStorage.getItem('userToken');
     const userId = await AsyncStorage.getItem('userId');
-    const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`;
+    const userRole = await AsyncStorage.getItem('userRole');
+
+    const isAdmin = userRole === "admin";
+
+      // Uso de isAdmin para seleccionar el endpoint correcto
+      const endpoint = isAdmin ? `http://${global.ipDireccion}:3000/api/admins/${userId}` : `http://${global.ipDireccion}:3000/api/users/${userId}`;
+    /* const endpoint = `http://${global.ipDireccion}:3000/api/admins/${userId}`; */
 
     try {
       const response = await fetch(endpoint, {

@@ -1,84 +1,66 @@
 // DeviceList.js (parte de su contenido)
 
+
 import React, { useState, useEffect } from 'react';
 import { FlatList, TouchableOpacity, Text, View, StyleSheet, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import DeviceActionModal from './DeviceActionModal';
 import useDeviceManagement from '../hooks/useDeviceManagement'; // Asegúrate de que la ruta sea correcta
 
 const DeviceList = () => {
   const {
     devices,
-    users, // Asegúrate de que esta línea esté agregada para obtener los usuarios del hook
-    deleteDevice,
     loadData,
+    setSelectedDevice,
+    dissociateDevice, // Asegúrate de que esta línea esté agregada para obtener la función del hook
   } = useDeviceManagement();
 
   const [isModalOpen, setModalOpen] = useState(false);
-  const [currentDevice, setCurrentDevice] = useState(null);
-
+  
   useEffect(() => {
-    loadData(); // Carga los dispositivos y usuarios cuando el componente se monta
+    loadData(); // Carga los dispositivos cuando el componente se monta
   }, []);
 
-  const handleEdit = (device) => {
-    setCurrentDevice(device);
-    setModalOpen(true);
-  };
-
-  const handleDelete = (deviceId) => {
+  const handleDissociate = (deviceId) => {
     Alert.alert(
-      "Eliminar Dispositivo",
-      "¿Estás seguro de que quieres eliminar este dispositivo?",
+      "Desasociar Dispositivo",
+      "¿Estás seguro de que quieres desasociar este dispositivo?",
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Eliminar", onPress: () => deleteDevice(deviceId), style: "destructive" },
+        {
+          text: "Desasociar",
+          onPress: () => {
+            setSelectedDevice(deviceId); // Guarda el dispositivo actual seleccionado
+            dissociateDevice(deviceId); // Llama a la función para desasociar el dispositivo
+          },
+          style: "destructive"
+        },
       ],
     );
   };
 
-  const handleAssign = (device) => {
-    setCurrentDevice(device);
-    setModalOpen(true); // Abre el modal para asignar o desasignar usuarios
-  };
-
-
   return (
     <>
-    <View style={styles.container}>
-      <FlatList
-        data={devices}
-        keyExtractor={(item) => item._id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.deviceListItem}>
-            <Text>{item.room}</Text>
-            <TouchableOpacity onPress={() => handleEdit(item)}>
-              <MaterialIcons name="edit" size={18} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleDelete(item._id)}>
-              <MaterialIcons name="delete" size={18} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleAssign(item)}>
-              <MaterialIcons name="add" size={18} />
-            </TouchableOpacity>
-          </View>
-        )}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.userListContainer}
-      />
-      {isModalOpen && (
-          <DeviceActionModal
-            isVisible={isModalOpen}
-            onClose={() => setModalOpen(false)}
-            device={currentDevice}
-            users={users}
-          />
-        )}
-    </View>
+      <View style={styles.container}>
+        <FlatList
+          data={devices}
+          keyExtractor={(item) => item._id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.deviceListItem}>
+              <Text>{item.room}</Text>
+              <TouchableOpacity onPress={() => handleDissociate(item._id)}>
+                <MaterialIcons name="delete" size={18} />
+              </TouchableOpacity>
+            </View>
+          )}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.userListContainer}
+        />
+      </View>
     </>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

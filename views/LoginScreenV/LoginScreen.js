@@ -50,6 +50,7 @@ const LoginScreen = ({ navigation }) => {
                     navigation.navigate('Profile'); // Asume que tienes una pantalla de dashboard para admin
                 } else {
                     navigation.navigate('ProfileMonitor'); // Asume que tienes una pantalla para usuarios
+                    console.log("sent to ProfileMonitor")
                 }
             } else {
                 const errorMessage = await response.text();

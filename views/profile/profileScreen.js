@@ -54,15 +54,6 @@ const ProfileScreen = ({ navigation }) => {
             return <Text>No se pudo obtener los datos del usuario.</Text>; // Manejo de estado sin datos
         }
 
-    /* const userData = {
-        name: 'EMMA',
-        designsPosted: 104,
-        boardsCreated: 12,
-        balance: 2084,
-        orders: 14,
-        phoneNumber: '(581) 305-6789',
-        email: 'emma.terrain@gmail.com',
-      }; */
     
       return (
         <SafeAreaView style={styles.container}>

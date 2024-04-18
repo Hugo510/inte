@@ -62,7 +62,7 @@ export default function DeviceActionModal({ isOpen, onClose, device, onSubmit, u
             {users.map((user) => (
               <View key={user._id} style={styles.userListItem}>
                 <Text>{`${user.firstName} ${user.lastName}`}</Text>
-                <CheckBox
+                <Checkbox
                   value={device.assignedUsers.includes(user._id)}
                   onValueChange={() => handleToggleUser(user._id)}
                 />

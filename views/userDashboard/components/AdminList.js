@@ -2,21 +2,15 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Alert, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import UserActionModal from './UserActionModal'; // Asumiendo que este modal ya está creado
 import useDeviceManagement from '../hooks/useDeviceManagement'; // Importamos nuestro hook
 
 const UserList = () => {
   const {
-    users,
-    removeUser,
+    admins,
+    dissociateAdmin,
     isLoading,
     loadData,
-    assignDeviceToUser,
-    unassignDeviceFromUser,
   } = useDeviceManagement();
-
-  const [userActionModalVisible, setUserActionModalVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
 
   // Estilos aquí o en un archivo externo importado
   const styles = StyleSheet.create({
@@ -50,10 +44,10 @@ const UserList = () => {
   });
   
 
-  const confirmRemoveUser = (userEmail) => {
+  const confirmRemoveAdmin = (adminEmail, adminId) => {
     Alert.alert(
       "Eliminar Usuario",
-      `¿Estás seguro de que quieres eliminar a ${userEmail}?`,
+      `¿Estás seguro de que quieres eliminar a ${adminEmail}?`,
       [
         {
           text: "Cancelar",
@@ -62,8 +56,8 @@ const UserList = () => {
         {
           text: "Eliminar",
           onPress: async () => {
-            await removeUser(userEmail);
-            await loadData(); // Recargamos la información
+            await dissociateAdmin(adminId);
+            await loadData();
           },
           style: "destructive"
         }
@@ -72,37 +66,20 @@ const UserList = () => {
     );
   };
 
-  const openUserActionModal = (user) => {
-    setSelectedUser(user);
-    setUserActionModalVisible(true);
-  };
-
-  const handleAssignDevices = async (deviceId, userId) => {
-    await assignDeviceToUser(deviceId, userId);
-    await loadData(); // Recargamos los datos después de la asignación
-  };
-
-  const handleUnassignDevices = async (deviceId, userId) => {
-    await unassignDeviceFromUser(deviceId, userId);
-    await loadData(); // Recargamos los datos después de la desasignación
-  };
 
   return (
     <>
       <FlatList
-        data={users}
-        keyExtractor={(user) => user._id.toString()}
+        data={admins}
+        keyExtractor={(admins) => admins._id.toString()}
         renderItem={({ item }) => (
           <View style={styles.userListItem}>
             {/* Contenido del item de usuario */}
             <Text style={styles.userListTextName}>{`${item.firstName} ${item.lastName}`}</Text>
             <Text style={styles.userListTextEmail}>{item.email}</Text>
             
-            <TouchableOpacity onPress={() => confirmRemoveUser(item.email)}>
+            <TouchableOpacity onPress={() => confirmRemoveAdmin(item.email, item._id)}>
               <MaterialIcons name="delete" size={18} color="black" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => openUserActionModal(item)}>
-              <MaterialIcons name="settings" size={18} color="black" />
             </TouchableOpacity>
           </View>
         )}
@@ -111,15 +88,6 @@ const UserList = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.userListContainer}
       />
-      {selectedUser && (
-        <UserActionModal
-          isVisible={userActionModalVisible}
-          onClose={() => setUserActionModalVisible(false)}
-          user={selectedUser}
-          onAssignDevices={handleAssignDevices}
-          onUnassignDevices={handleUnassignDevices}
-        />
-      )}
     </>
   );
 };

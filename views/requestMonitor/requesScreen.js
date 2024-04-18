@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, Alert, Modal, TouchableOpacity, Picker, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, Button, FlatList, Alert, Modal, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
 import RequestProcessor from './RequestProcessor';
 import styles from './requesScreen.styles';
 

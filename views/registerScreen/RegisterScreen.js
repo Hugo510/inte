@@ -15,6 +15,12 @@ const registerSchema = Yup.object().shape({
   birthDate: Yup.date()
     .max(new Date(), "No puedes seleccionar una fecha futura")
     .required("La fecha de nacimiento es requerida"),
+  age: Yup.number()
+    .required('Edad es requerida')
+    .positive('La edad debe ser un número positivo')
+    .integer('La edad debe ser un número entero')
+    .min(18, 'Debes tener al menos 18 años')
+    .max(100, 'La edad máxima es 100 años')
 });
 
 const RegisterScreen = ({ navigation }) => {
@@ -33,11 +39,12 @@ const RegisterScreen = ({ navigation }) => {
     animateOpacity(0);
   };
 
-  const onChangeDate = (event, selectedDate) => {
+const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setDate(currentDate);
     hideDatePicker();
   };
+  
 
   const animateOpacity = (toValue) => {
     Animated.timing(opacity, {
@@ -68,16 +75,28 @@ const RegisterScreen = ({ navigation }) => {
         <Text style={styles.subtitle}>¿Listo para dar el paso?</Text>
 
         <Formik
-          initialValues={{ email: '', password: '', firstName: '', lastName: '', birthDate: new Date() }}
-          validationSchema={registerSchema}          
+          initialValues={{
+            email: '',
+            password: '',
+            firstName: '',
+            lastName: '',
+            birthDate: new Date(), // Asegúrate de que esto es manejado correctamente
+            age: ''  // Valor inicial para el campo edad
+          }}
+          validationSchema={registerSchema}
+
           onSubmit={async (values, { setSubmitting, resetForm  }) => {
             console.log("Inicio del onSubmit"); // Paso 6: Asegurarse que esta parte del código se ejecuta
-            setLoading(true);
+            
+            // Preparar datos para enviar, excluyendo isAdmin y agregando la edad
+            const { isAdmin, ...formData } = values; // Excluye isAdmin del objeto
             const userData = {
-              ...values,
+              ...formData,
               birthDate: date.toISOString(),
-              isAdmin,
+              age: parseInt(values.age, 10) // Asegura que la edad es un entero
             };
+
+            
             
             console.log("Valores a enviar:", userData); // Verificar los valores que se intentan enviar
 
@@ -114,7 +133,9 @@ const RegisterScreen = ({ navigation }) => {
           }}
         >
           {({ handleChange, handleBlur, handleSubmit, values, touched, errors, setFieldValue }) => (
+            
             <>
+            
               <Text style={styles.header}>Registro</Text>
               <TextInput
                 style={[styles.input, touched.email && errors.email ? styles.errorInput : null]}
@@ -165,6 +186,17 @@ const RegisterScreen = ({ navigation }) => {
                 </Animated.View>
               )}
 
+              <TextInput
+                    style={[styles.input, touched.age && errors.age ? styles.errorInput : null]}
+                    placeholder="Edad"
+                    keyboardType="numeric"  // Establece el teclado numérico para la entrada de edad
+                    onChangeText={handleChange('age')}
+                    onBlur={handleBlur('age')}
+                    value={values.age}
+                  />
+                  {touched.age && errors.age && <Text style={styles.errorText}>{errors.age}</Text>}
+
+
               <View style={styles.checkboxContainer}>
                 <Checkbox
                   status={isAdmin ? 'checked' : 'unchecked'}
@@ -172,11 +204,10 @@ const RegisterScreen = ({ navigation }) => {
                 />
               </View>
 
-              <Button
-                onPress={handleSubmit}
-                title={loading ? "Cargando..." : "Registrar"}
-                disabled={loading}
-              />
+              <TouchableOpacity onPress={handleSubmit}>
+                <Text>{loading ? "Cargando..." : "Registrar"}</Text>
+              </TouchableOpacity>
+
             </>
           )}
         </Formik>

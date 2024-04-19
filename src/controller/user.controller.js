@@ -13,10 +13,10 @@ const { login } = require('../utils/auth.utils.js');
 
 const registerUser = async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+    // Asumiendo que el hasheo de la contraseña se ha eliminado por solicitud anterior
     const newUser = new User({
       ...req.body,
-      password: hashedPassword,
+      password: req.body.password,
     });
 
     const savedUser = await newUser.save();
@@ -24,9 +24,17 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({ message: 'User registered successfully', user: savedUser });
   } catch (error) {
-    res.status(400).send(error.message);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation error', errors: error.errors });
+    } else if (error.code && error.code === 11000) {
+      return res.status(409).json({ message: 'Duplicate username or email' });
+    } else {
+      console.error('Unexpected error:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
   }
 };
+
 const loginUser = async (req, res) => {
   try {
     // Asume que authenticate ahora espera solo un modelo relevante según el tipo de login
@@ -191,62 +199,84 @@ const removeAdmin = async (req, res) => {
   }
 };
 
-
 const getMonitoringRequestsByUserId = async (req, res) => {
-  const { userId } = req.params;  // Obtener el ID del usuario desde los parámetros de la ruta
-
+  const { userId } = req.params;
   try {
       const user = await User.findById(userId).populate({
-          path: 'monitoringRequests.adminId',  // Popular los detalles del administrador que envió la solicitud
-          select: 'name email'  // Seleccionar solo nombre y email del admin para mostrar
+          path: 'monitoringRequests.adminId',
+          select: 'name email'
       }).populate({
-          path: 'monitoringRequests.deviceId',  // También popular los detalles del dispositivo
-          select: 'deviceName location'  // Seleccionar nombre y ubicación del dispositivo
+          path: 'monitoringRequests.deviceId',
+          /* select: 'deviceName location' */
       });
 
       if (!user) {
-          return res.status(404).send('Usuario no encontrado.');
+          return res.status(404).json({ message: 'Usuario no encontrado.' });
       }
 
-      // Retornar las solicitudes de monitoreo del usuario
+      if (user.monitoringRequests.length === 0) {
+          return res.status(404).json({ message: 'No se encontraron solicitudes de monitoreo para el usuario.' });
+      }
+
+      // Desactivar caché para la respuesta
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
       res.status(200).json({ monitoringRequests: user.monitoringRequests });
   } catch (error) {
-      console.error(error);
-      res.status(500).send({ message: 'Error al obtener las solicitudes de monitoreo para el usuario', error: error.message });
+      console.error('Error retrieving monitoring requests:', error);
+      res.status(500).json({ message: 'Error al obtener las solicitudes de monitoreo para el usuario', error: error.message });
   }
 };
 
-
 const getDevicesForUser = async (req, res) => {
-  const { userId } = req.user; // Asume autenticación y que tienes el ID del usuario
-
+  const { userId } = req.params;
+  
   try {
-      const devices = await Device.find({ monitoredUsers: userId }).populate('adminUser', 'email');
-      res.status(200).json(devices);
+    const user = await User.findById(userId).populate({
+      path: 'devices',
+      populate: { path: 'adminUser' }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    if (!user.devices || user.devices.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Desactivar caché para la respuesta
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.status(200).json(user.devices);
   } catch (error) {
-      res.status(500).send({ message: 'Error al obtener dispositivos para el usuario', error: error.message });
+    console.error('Error retrieving devices for user:', error);
+    res.status(500).json({ message: 'Error al obtener dispositivos para el usuario', error: error.message });
   }
 };
 
 const getAdminsForUser = async (req, res) => {
-  const { userId } = req.user; // Asume autenticación y que tienes el ID del usuario
-
+  const { userId } = req.params;
   try {
-      const user = await User.findById(userId).populate({
-          path: 'monitoringRequests.adminId',
-          select: 'firstName lastName email' // Seleccionar los detalles relevantes del admin
-      });
+      const user = await User.findById(userId).populate('monitoringRequests.adminId');
 
       if (!user) {
-          return res.status(404).send('Usuario no encontrado.');
+          return res.status(404).json({ message: 'Usuario no encontrado.' });
       }
 
-      const admins = user.monitoringRequests.map(request => request.adminId);
+      const admins = user.monitoringRequests.map(request => request.adminId).filter(admin => admin != null);
+      if (admins.length === 0) {
+          return res.status(404).json({ message: 'No se encontraron administradores para este usuario.' });
+      }
+
+      // Desactivar caché para la respuesta
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
       res.status(200).json({ admins });
   } catch (error) {
-      res.status(500).send({ message: 'Error al obtener administradores para el usuario', error: error.message });
+      console.error('Error retrieving admins for user:', error);
+      res.status(500).json({ message: 'Error al obtener administradores para el usuario', error: error.message });
   }
 };
+
+
 
 const dissociateFromAdmin = async (req, res) => {
   const userId = req.user._id; // Asume autenticación y que tienes el ID del usuario

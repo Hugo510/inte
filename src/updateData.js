@@ -18,7 +18,7 @@ async function main() {
     // Ejemplo de cómo asignar un dispositivo a un usuario y crear una solicitud de monitoreo
     const deviceId = "65df7f4da548f31067377549"; // ID del dispositivo para la asignación
     const adminId = "65bc08ba1d400c69823ae7be"; // ID del admin que envía la solicitud
-    const userId = "65dcf2f3c1e449a1ed623c5c"; // ID del usuario a quien se le asigna el dispositivo
+    const userId = "6620c32ccf4e225870e975db"; // ID del usuario a quien se le asigna el dispositivo
 
     // Actualizar registro de admin para incluir una nueva solicitud de monitoreo
     await Admin.findByIdAndUpdate(adminId, {

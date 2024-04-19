@@ -44,10 +44,10 @@ router.get('/', protectUser, getUsers); // Asegurando protección para esta ruta
 router.get('/:id', protectUser, getUserById);
 
 // Obtener dispositivos asociados al usuario
-router.get('/devices', protectUser, getDevicesForUser);
+router.get('/devices/:userId', protectUser, getDevicesForUser);
 
 // Obtener administradores asociados al usuario
-router.get('/admins', protectUser, getAdminsForUser);
+router.get('/admins/:userId', protectUser, getAdminsForUser);
 
 // Actualizar un usuario
 router.put('/:id', protectUser, updateUser);

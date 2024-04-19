@@ -103,7 +103,7 @@ const ProfileMonitorScreen = ({ navigation }) => {
               />
               <MenuItem
                 icon="star"
-                text="Gestionar monitores"
+                text="Gestionar Admins"
                 onPress={() => navigation.navigate('UserDashboard')}
               />
               <MenuItem

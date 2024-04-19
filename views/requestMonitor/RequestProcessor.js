@@ -78,10 +78,18 @@ const RequestProcessor = ({ request, onUpdate, onDelete }) => {
     );
   };
 
+  const renderText = (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      // Attempt to extract a sensible value, like an ID or name
+      return `${key}: ${value._id || value.name || JSON.stringify(value)}`;
+    }
+    return `${key}: ${value}`;
+  };
+
   return (
     <View style={styles.requestItem}>
-      <Text>Admin ID: {request.adminId}</Text>
-      <Text>Device ID: {request.deviceId}</Text>
+      <Text>{renderText('Admin ID', request.adminId)}</Text>
+      <Text>{renderText('Device ID', request.deviceId)}</Text>
       <Text>Status: {request.status}</Text>
       {loading ? (
         <ActivityIndicator size="small" color="#0000ff" />
@@ -114,14 +122,23 @@ const RequestProcessor = ({ request, onUpdate, onDelete }) => {
   );
 };
 
+
 const styles = StyleSheet.create({
   requestItem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-    marginBottom: 10,
-    padding: 10,
+    backgroundColor: '#f8f9fa', // Light grey background
+    borderRadius: 8,
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1.5,
+    elevation: 3,
+    flexDirection: 'column', // Stack items vertically
+    alignItems: 'stretch', // Stretch child items
+    width: '90%', // Set width to 90% of parent container
+    alignSelf: 'center', // Center the item in the parent container
   },
   acceptButton: {
     backgroundColor: '#4CAF50',
@@ -151,5 +168,6 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
+
 
 export default RequestProcessor;

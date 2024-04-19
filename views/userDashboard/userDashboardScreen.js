@@ -17,7 +17,7 @@ const UserDashboardScreen = () => {
   } = useDeviceManagement();
 
     useEffect(() => {
-        loadData();
+        /* loadData(); */
       }, []);
   
 

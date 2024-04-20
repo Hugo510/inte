@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Animated, View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, Button, Alert, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -30,25 +30,24 @@ const RegisterScreen = ({ navigation }) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
 
-  const showDatePicker = () => {
+  const showDatePicker = useCallback(() => {
     setDatePickerVisibility(true);
     animateOpacity(1);
-  };
+  }, []);
 
-  const hideDatePicker = () => {
+  const hideDatePicker = useCallback(() => {
     animateOpacity(0);
-  };
+  }, []);
 
-const onChangeDate = (event, selectedDate) => {
+  const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setDate(currentDate);
     hideDatePicker();
   };
-  
 
-  const animateOpacity = (toValue) => {
+  const animateOpacity = useCallback((toValue) => {
     Animated.timing(opacity, {
-      toValue: toValue,
+      toValue,
       duration: 500,
       useNativeDriver: true,
     }).start(() => {
@@ -56,7 +55,7 @@ const onChangeDate = (event, selectedDate) => {
         setDatePickerVisibility(false);
       }
     });
-  };
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -204,9 +203,13 @@ const onChangeDate = (event, selectedDate) => {
                 />
               </View>
 
-              <TouchableOpacity onPress={handleSubmit}>
-                <Text>{loading ? "Cargando..." : "Registrar"}</Text>
+              <TouchableOpacity onPress={() => {
+                  console.log('Presionado submit');
+                  handleSubmit();
+              }}>
+                  <Text>{loading ? "Cargando..." : "Registrar"}</Text>
               </TouchableOpacity>
+
 
             </>
           )}

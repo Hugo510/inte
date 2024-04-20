@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import RequestProcessor from './RequestProcessor';
 import styles from './requesScreen.styles';
 
-const RequestsMonitorScreen = () => {
+const RequestsMonitorScreen = ({ navigation }) => {
   const [requests, setRequests] = useState([]);
   const [nonPendingRequests, setNonPendingRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -21,7 +21,10 @@ const RequestsMonitorScreen = () => {
     const userToken = await AsyncStorage.getItem('userToken');
     const userId = await AsyncStorage.getItem('userId');
     if (!userToken || !userId) {
-      Alert.alert("Authentication Error", "Authentication token or user ID not found.", [{ text: "Retry", onPress: () => fetchRequests() }]);
+      Alert.alert("Authentication Error", "Authentication token or user ID not found.", [
+        { text: "Retry", onPress: () => fetchRequests() },
+        { text: "Volver", onPress: () => navigation.goBack() }  // Adding a Volver button to go back
+      ]);
       setLoading(false);
       return;
     }
@@ -44,7 +47,10 @@ const RequestsMonitorScreen = () => {
         throw new Error(errorMessage || "Failed to fetch requests data.");
       }
     } catch (error) {
-      Alert.alert("Fetch Error", error.message || "An unexpected error occurred while fetching requests.", [{ text: "Retry", onPress: () => fetchRequests() }]);
+      Alert.alert("Fetch Error", error.message || "An unexpected error occurred while fetching requests.", [
+        { text: "Retry", onPress: () => fetchRequests() },
+        { text: "Volver", onPress: () => navigation.goBack() }  // Adding a Volver button to go back
+      ]);
     } finally {
       setLoading(false);
     }

@@ -16,33 +16,41 @@ async function main() {
     console.log('Conexión a MongoDB Atlas establecida con éxito.');
 
     // Ejemplo de cómo asignar un dispositivo a un usuario y crear una solicitud de monitoreo
-    const deviceId = "65df7f4da548f31067377549"; // ID del dispositivo para la asignación
-    const adminId = "65bc08ba1d400c69823ae7be"; // ID del admin que envía la solicitud
-    const userId = "6620c32ccf4e225870e975db"; // ID del usuario a quien se le asigna el dispositivo
+    const adminId = "65bc08ba1d400c69823ae7be"; // ID del admin que envía las solicitudes
+    const assignments = [
+      { userId: "6620c32ccf4e225870e975db", deviceId: "65df7f4da548f31067377549" },
+      { userId: "6620c32ccf4e225870e976ef", deviceId: "65df7f4da548f31067377550" },
+      // Agrega más pares según sea necesario
+    ];
 
-    // Actualizar registro de admin para incluir una nueva solicitud de monitoreo
-    await Admin.findByIdAndUpdate(adminId, {
-      $push: {
-        sentMonitoringRequests: {
-          userId: userId,
-          deviceId: deviceId,
-          status: 'pending',
-          sentAt: new Date()
+    for (const assignment of assignments) {
+      const { userId, deviceId } = assignment;
+
+      // Actualizar registro de admin para incluir nuevas solicitudes de monitoreo
+      await Admin.findByIdAndUpdate(adminId, {
+        $push: {
+          sentMonitoringRequests: {
+            userId: userId,
+            deviceId: deviceId,
+            status: 'pending',
+            sentAt: new Date()
+          }
         }
-      }
-    });
+      });
 
-    // Actualizar registro de usuario para reflejar la recepción de una nueva solicitud de monitoreo
-    await User.findByIdAndUpdate(userId, {
-      $push: {
-        monitoringRequests: {
-          adminId: adminId,
-          deviceId: deviceId,
-          status: 'pending'
-        },
-        devices: deviceId // Esta línea asigna directamente el dispositivo al usuario
-      }
-    });
+      // Actualizar registro de usuario para reflejar la recepción de nuevas solicitudes de monitoreo y asignar dispositivo
+      await User.findByIdAndUpdate(userId, {
+        $push: {
+          monitoringRequests: {
+            adminId: adminId,
+            deviceId: deviceId,
+            status: 'pending'
+          },
+          devices: deviceId // Asigna el dispositivo al usuario
+        }
+      });
+    }
+
 
     console.log('Database update completed successfully');
   } catch (error) {
